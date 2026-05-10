@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a2744">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DocenFicha">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png">
+<title>DocenFicha · CEIP Puente de Simancas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-mid: #243258;
+    --navy-light: #2e4070;
+    --gold: #f5c842;
+    --gold-pale: #fde98a;
+    --teal: #3ecfb8;
+    --teal-dark: #29a896;
+    --red: #f25c5c;
+    --green: #4cce8a;
+    --white: #f8f9fc;
+    --gray: #8895b3;
+    --card: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.1);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --radius: 18px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 60% 50% at 80% 10%, rgba(62,207,184,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 40% at 10% 80%, rgba(245,200,66,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { 
+    display: none; 
+    position: relative; 
+    z-index: 1; 
+    min-height: 100vh;
+    padding: 0 0 90px 0;
+  }
+  .screen.active { display: block; }
+
+  /* ─── TOP NAV ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(26,39,68,0.92);
+    backdrop-filter: blur(20px);
+    z-index: 100;
+  }
+  .topbar-logo {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--gold);
+    letter-spacing: -0.02em;
+  }
+  .topbar-logo span { color: var(--teal); }
+  .topbar-user {
+    font-size: 0.78rem;
+    color: var(--gray);
+    text-align: right;
+  }
+  .topbar-user strong { color: var(--white); display: block; font-size: 0.85rem; }
+
+  /* ─── BOTTOM NAV ─── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(26,39,68,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 200;
+  }
+  .nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px 14px;
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: none;
+    color: var(--gray);
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 500;
+  }
+  .nav-item.active { color: var(--gold); }
+  .nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin: 0 16px 14px;
+    backdrop-filter: blur(10px);
+  }
+  .card-title {
+    font-family: var(--font-head);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 12px;
+  }
+
+  /* ─── LOGIN SCREEN ─── */
+  #screen-login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    gap: 0;
+  }
+  .login-logo {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 3rem;
+    color: var(--gold);
+    letter-spacing: -0.04em;
+    margin-bottom: 4px;
+  }
+  .login-logo span { color: var(--teal); }
+  .login-subtitle {
+    font-size: 0.82rem;
+    color: var(--gray);
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .login-select-label {
+    font-size: 0.78rem;
+    color: var(--gray);
+    margin-bottom: 8px;
+    align-self: flex-start;
+    width: 100%;
+    max-width: 340px;
+  }
+  .login-select {
+    width: 100%;
+    max-width: 340px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    padding: 14px 16px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+  .login-select option { background: var(--navy-mid); color: var(--white); }
+
+  .biometric-btn {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 0 0 rgba(62,207,184,0.4);
+    margin: 0 auto 16px;
+  }
+  .biometric-btn:active { transform: scale(0.95); }
+  .biometric-btn.scanning {
+    animation: pulse-ring 1.2s ease-out infinite;
+  }
+  @keyframes pulse-ring {
+    0% { box-shadow: 0 0 0 0 rgba(62,207,184,0.5); }
+    70% { box-shadow: 0 0 0 30px rgba(62,207,184,0); }
+    100% { box-shadow: 0 0 0 0 rgba(62,207,184,0); }
+  }
+  .biometric-btn svg { width: 48px; height: 48px; color: white; }
+  .biometric-label { font-size: 0.78rem; color: var(--white); opacity: 0.8; }
+
+  .or-divider {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; max-width: 340px;
+    margin: 16px 0;
+    color: var(--gray); font-size: 0.75rem;
+  }
+  .or-divider::before, .or-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .pin-input-row {
+    display: flex; gap: 10px; margin-bottom: 16px;
+  }
+  .pin-digit {
+    width: 52px; height: 60px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    caret-color: var(--teal);
+  }
+  .pin-digit:focus { border-color: var(--teal); }
+
+  .admin-link {
+    font-size: 0.78rem;
+    color: var(--gray);
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 20px;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+  }
+
+  /* ─── FICHAR SCREEN ─── */
+  .fichar-hero {
+    padding: 28px 20px 20px;
+    text-align: center;
+  }
+  .fichar-nombre {
+    font-family: var(--font-head);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .fichar-fecha {
+    font-size: 0.82rem;
+    color: var(--gray);
+    margin-bottom: 28px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+  .status-badge.out { background: rgba(242,92,92,0.15); color: var(--red); border: 1px solid rgba(242,92,92,0.3); }
+  .status-badge.in { background: rgba(76,206,138,0.15); color: var(--green); border: 1px solid rgba(76,206,138,0.3); }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .status-badge.out .status-dot { background: var(--red); }
+  .status-badge.in .status-dot { background: var(--green); animation: blink 1.2s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .fichar-clock {
+    font-family: var(--font-head);
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--gold);
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+
+  .big-btn {
+    width: calc(100% - 32px);
+    margin: 0 16px;
+    padding: 20px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .big-btn:active { transform: scale(0.98); }
+  .big-btn.entrada {
+    background: linear-gradient(135deg, var(--green) 0%, #2fa86e 100%);
+    color: white;
+    box-shadow: 0 8px 30px rgba(76,206,138,0.3);
+  }
+  .big-btn.salida {
+    background: linear-gradient(135deg, var(--red) 0%, #c93838 100%);
+    color: white;
+    box-shadow: 0 8px 30px rgba(242,92,92,0.3);
+  }
+  .big-btn svg { width: 24px; height: 24px; }
+
+  .today-log {
+    margin: 20px 16px 0;
+  }
+  .log-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .log-item:last-child { border-bottom: none; }
+  .log-type {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .log-dot.entrada { background: var(--green); }
+  .log-dot.salida { background: var(--red); }
+  .log-time { font-family: var(--font-head); font-weight: 700; color: var(--white); }
+  .log-duration { font-size: 0.78rem; color: var(--teal); font-weight: 600; }
+
+  /* ─── STATS SCREEN ─── */
+  .stats-header { padding: 24px 20px 16px; }
+  .stats-title {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .stats-sub { font-size: 0.82rem; color: var(--gray); }
+
+  .period-tabs {
+    display: flex;
+    margin: 0 16px 16px;
+    background: rgba(255,255,255,0.05);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+  }
+  .period-tab {
+    flex: 1; padding: 9px; text-align: center;
+    font-size: 0.82rem; font-weight: 600;
+    border-radius: 8px; cursor: pointer;
+    transition: all 0.2s; border: none; background: none;
+    color: var(--gray); font-family: var(--font-body);
+  }
+  .period-tab.active { background: var(--navy-light); color: var(--gold); }
+
+  .metric-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 0 16px 14px;
+  }
+  .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+  }
+  .metric-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+    margin-bottom: 8px;
+  }
+  .metric-value {
+    font-family: var(--font-head);
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .metric-unit { font-size: 0.72rem; color: var(--gray); }
+  .metric-extra { font-size: 0.75rem; color: var(--teal); margin-top: 4px; font-weight: 600; }
+  .metric-extra.neg { color: var(--red); }
+
+  .progress-bar-wrap { margin-bottom: 6px; }
+  .progress-bar-bg {
+    height: 6px; background: rgba(255,255,255,0.1);
+    border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+  .progress-bar-fill.teal { background: var(--teal); }
+  .progress-bar-fill.gold { background: var(--gold); }
+
+  /* Mini calendar de horas */
+  .week-bars { 
+    padding: 0 16px; 
+    margin-bottom: 14px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+  }
+  .bar-day { width: 28px; color: var(--gray); flex-shrink: 0; }
+  .bar-track {
+    flex: 1; height: 28px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    position: relative;
+    min-width: 2px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    transition: width 0.5s ease;
+  }
+  .bar-fill.work { background: linear-gradient(90deg, var(--teal-dark), var(--teal)); }
+  .bar-fill.home { background: linear-gradient(90deg, #4a6fa5, #6b8fc4); }
+  .bar-fill.over { background: linear-gradient(90deg, #e07b3c, #f5a66a); }
+  .bar-hours { font-size: 0.72rem; color: var(--gray); width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* ─── HISTORIAL SCREEN ─── */
+  .history-month-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+  }
+  .month-nav-btn {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white); transition: all 0.15s; font-size: 1rem;
+    font-family: var(--font-body);
+  }
+  .month-nav-btn:active { background: var(--navy-light); }
+  .month-label { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+
+  .history-day {
+    margin: 0 16px 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .history-day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+  }
+  .history-day-date {
+    font-family: var(--font-head);
+    font-size: 0.88rem;
+    font-weight: 700;
+  }
+  .history-day-total {
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .history-day-total.good { color: var(--teal); }
+  .history-day-total.over { color: var(--gold); }
+  .history-day-detail {
+    padding: 0 16px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .history-pair {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.82rem;
+  }
+  .history-pair-times { display: flex; align-items: center; gap: 6px; }
+  .history-arrow { color: var(--gray); font-size: 0.7rem; }
+
+  /* ─── ADMIN SCREEN ─── */
+  .admin-section { padding: 20px 16px 0; }
+  .admin-section-title {
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .admin-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .prof-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .prof-card:active { border-color: var(--teal); }
+  .prof-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--navy-light), var(--teal-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-head); font-weight: 700; font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+  .prof-info { flex: 1; }
+  .prof-name { font-weight: 600; font-size: 0.92rem; margin-bottom: 2px; }
+  .prof-role { font-size: 0.75rem; color: var(--gray); }
+  .prof-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 99px;
+  }
+  .prof-badge.admin { background: rgba(245,200,66,0.2); color: var(--gold); }
+  .prof-badge.active { background: rgba(76,206,138,0.2); color: var(--green); }
+
+  .add-prof-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border);
+    background: none;
+    color: var(--teal);
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+  }
+  .add-prof-btn:active { background: rgba(62,207,184,0.08); }
+
+  /* Tabla resumen admin */
+  .admin-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .admin-table th {
+    text-align: left; padding: 8px 10px;
+    font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    color: var(--gray); border-bottom: 1px solid var(--border);
+  }
+  .admin-table td { padding: 11px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .admin-table tr:last-child td { border-bottom: none; }
+  .table-hours { font-family: var(--font-head); font-weight: 700; }
+  .table-hours.ok { color: var(--teal); }
+  .table-hours.over { color: var(--gold); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%; max-width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slide-up 0.3s ease;
+  }
+  @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: var(--border); margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-family: var(--font-head);
+    font-size: 1.1rem; font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .form-field { margin-bottom: 16px; }
+  .form-label { font-size: 0.78rem; color: var(--gray); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 13px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--teal); }
+  .form-input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-field { flex: 1; }
+
+  .btn-primary {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
+    border: none; border-radius: var(--radius-sm);
+    color: white; font-family: var(--font-head);
+    font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-danger {
+    width: 100%; padding: 16px;
+    background: rgba(242,92,92,0.15);
+    border: 1px solid rgba(242,92,92,0.3);
+    border-radius: var(--radius-sm);
+    color: var(--red); font-family: var(--font-head);
+    font-size: 0.88rem; font-weight: 600;
+    cursor: pointer; transition: all 0.15s;
+    margin-top: 8px;
+  }
+  .btn-secondary {
+    width: 100%; padding: 14px;
+    background: none; border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--gray); font-family: var(--font-body);
+    font-size: 0.9rem; cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed;
+    bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 12px 24px;
+    font-size: 0.88rem; font-weight: 600;
+    white-space: nowrap;
+    z-index: 999;
+    opacity: 0;
+    transition: all 0.3s;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: rgba(76,206,138,0.5); color: var(--green); }
+  .toast.error { border-color: rgba(242,92,92,0.5); color: var(--red); }
+  .toast.info { border-color: rgba(62,207,184,0.5); color: var(--teal); }
+
+  /* ─── EXPORT BTN ─── */
+  .export-row {
+    display: flex; gap: 10px; margin: 0 16px 16px;
+  }
+  .export-btn {
+    flex: 1; padding: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white); font-family: var(--font-body);
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 6px; transition: all 0.15s;
+  }
+  .export-btn:active { background: rgba(255,255,255,0.1); }
+  .export-btn svg { width: 16px; height: 16px; }
+
+  /* ─── ADMIN LOGIN ─── */
+  .admin-login-form {
+    display: flex; flex-direction: column; gap: 12px;
+    max-width: 340px; width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Scrollable sections */
+  .scroll-section { overflow-y: auto; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--gray); font-size: 0.88rem;
+  }
+  .empty-state svg { width: 48px; height: 48px; margin: 0 auto 12px; display: block; opacity: 0.4; }
+
+  /* Admin report table scroll */
+  .table-scroll { overflow-x: auto; margin: 0 16px 16px; }
+  .table-scroll .admin-table { min-width: 360px; }
+
+  /* Borrar registros */
+  .borrar-periodo-btn {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--white);
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .borrar-periodo-btn:active { background: rgba(255,255,255,0.1); }
+  .borrar-periodo-btn.danger {
+    border-color: rgba(242,92,92,0.35);
+    background: rgba(242,92,92,0.07);
+  }
+  .borrar-periodo-btn.danger:active { background: rgba(242,92,92,0.15); }
+
+  /* Tipo jornada selector */
+  .tipo-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 8px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--gray);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .tipo-btn.active {
+    border-color: var(--teal);
+    background: rgba(62,207,184,0.1);
+    color: var(--white);
+  }
+  .tipo-btn#tipo-casa.active {
+    border-color: #6b8fc4;
+    background: rgba(107,143,196,0.12);
+  }
+  .tipo-btn:active { transform: scale(0.97); }
+  .tipo-label { font-weight: 600; }
+  .tipo-label small { font-weight: 400; opacity: 0.75; font-size: 0.7rem; }
+
+  /* Pill chip */
+  .chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(62,207,184,0.12);
+    color: var(--teal);
+  }
+  .chip.weekend { background: rgba(245,200,66,0.12); color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-logo">Docen<span>Ficha</span></div>
+  <div class="login-subtitle">CEIP Puente de Simancas · Valladolid</div>
+
+  <label class="login-select-label">Selecciona tu nombre</label>
+  <select class="login-select" id="login-select">
+    <option value="">— elige un docente —</option>
+  </select>
+
+  <button class="biometric-btn" id="bio-btn" onclick="startBiometric()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+    </svg>
+    <span class="biometric-label">Huella dactilar</span>
+  </button>
+
+  <div class="or-divider">o entra con PIN</div>
+
+  <div class="pin-input-row">
+    <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p0" oninput="pinNext(this,1)">
+    <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p1" oninput="pinNext(this,2)">
+    <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p2" oninput="pinNext(this,3)">
+    <input class="pin-digit" type="password" inputmode="numeric" maxlength="1" id="p3" oninput="pinNext(this,-1)">
+  </div>
+
+  <button class="admin-link" onclick="showAdminLogin()">Acceso administrador</button>
+
+  <button id="btn-instalar-login" onclick="installPWA()" style="display:none;margin-top:16px;background:rgba(62,207,184,0.12);border:1px solid rgba(62,207,184,0.35);border-radius:99px;padding:10px 22px;color:var(--teal);font-family:var(--font-body);font-size:0.82rem;font-weight:600;cursor:pointer;align-items:center;gap:8px;transition:all 0.2s">
+    ⬇ Instalar app en este dispositivo
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════ MAIN FICHAR -->
+<div id="screen-fichar" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Docen<span>Ficha</span></div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button id="btn-instalar-topbar" onclick="installPWA()" style="display:none;background:rgba(62,207,184,0.15);border:1px solid rgba(62,207,184,0.3);border-radius:99px;padding:5px 12px;color:var(--teal);font-family:var(--font-body);font-size:0.72rem;font-weight:700;cursor:pointer">⬇ Instalar</button>
+      <div class="topbar-user" id="topbar-user-info"></div>
+    </div>
+  </div>
+
+  <div class="fichar-hero">
+    <div class="fichar-clock" id="live-clock">--:--:--</div>
+    <div class="fichar-fecha" id="live-date">--</div>
+    <div class="fichar-nombre" id="user-nombre"></div>
+    <div id="status-container">
+      <span class="status-badge out"><span class="status-dot"></span>Sin fichar</span>
+    </div>
+  </div>
+
+  <button class="big-btn entrada" id="main-action-btn" onclick="fichar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+    Registrar Entrada
+  </button>
+
+  <!-- Selector tipo de horas — visible solo al fichar entrada -->
+  <div id="tipo-selector" style="margin:14px 16px 0;display:none">
+    <div style="font-size:0.72rem;color:var(--gray);text-align:center;margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em">¿Qué tipo de horas vas a registrar?</div>
+    <div style="display:flex;gap:10px">
+      <button class="tipo-btn active" id="tipo-centro" onclick="setTipo('centro')">
+        <span style="font-size:1.3rem">🏫</span>
+        <span class="tipo-label">Permanencia<br><small>en el centro</small></span>
+      </button>
+      <button class="tipo-btn" id="tipo-casa" onclick="setTipo('casa')">
+        <span style="font-size:1.3rem">🏠</span>
+        <span class="tipo-label">Libre disposición<br><small>en casa o fuera</small></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="today-log card" style="margin-top:20px;" id="today-log-section">
+    <div class="card-title">Registro de hoy</div>
+    <div id="today-log-items">
+      <div class="empty-state" style="padding:20px 0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 6v6l4 2M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg>
+        <div>Aún no hay fichajes hoy</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="today-summary-card" style="display:none">
+    <div class="card-title">Resumen semanal rápido</div>
+    <div id="quick-weekly"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ ESTADÍSTICAS -->
+<div id="screen-stats" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Docen<span>Ficha</span></div>
+    <div class="topbar-user" id="stats-user-info"></div>
+  </div>
+
+  <div class="stats-header">
+    <div class="stats-title">Mis horas</div>
+    <div class="stats-sub" id="stats-period-label">Semana actual</div>
+  </div>
+
+  <div class="period-tabs">
+    <button class="period-tab active" onclick="setPeriod('semana',this)">Esta semana</button>
+    <button class="period-tab" onclick="setPeriod('mes',this)">Este mes</button>
+    <button class="period-tab" onclick="setPeriod('total',this)">Total</button>
+  </div>
+
+  <div class="metric-grid" id="metric-grid"></div>
+
+  <!-- Cuadro dedicado libre disposición -->
+  <div class="card" style="margin:0 16px 14px;padding:18px 20px" id="card-libre">
+    <div class="card-title">🏠 Horas de libre disposición</div>
+    <div id="libre-content"></div>
+  </div>
+
+  <div class="card week-bars" style="margin:0 16px 14px; padding:16px;">
+    <div class="card-title">Horas por día (esta semana)</div>
+    <div id="week-bars-container"></div>
+    <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--gray)">
+        <div style="width:12px;height:12px;border-radius:2px;background:var(--teal)"></div>En el centro
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--gray)">
+        <div style="width:12px;height:12px;border-radius:2px;background:#6b8fc4"></div>Libre disposición
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:0.72rem;color:var(--gray)">
+        <div style="width:12px;height:12px;border-radius:2px;background:#f5a66a"></div>Extra
+      </div>
+    </div>
+  </div>
+
+  <div class="export-row">
+    <button class="export-btn" onclick="openExportModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6M4 21h16M4 4h16v10H4z"/></svg>
+      Exportar Excel
+    </button>
+    <button class="export-btn" onclick="exportPrint()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4"/></svg>
+      Imprimir
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ HISTORIAL -->
+<div id="screen-historial" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Docen<span>Ficha</span></div>
+    <div class="topbar-user" id="hist-user-info"></div>
+  </div>
+
+  <div class="history-month-nav">
+    <button class="month-nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="month-label" id="hist-month-label"></div>
+    <button class="month-nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div id="historial-container"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">Docen<span>Ficha</span> <span style="font-size:0.65rem;color:var(--gold);background:rgba(245,200,66,0.15);padding:2px 8px;border-radius:99px;margin-left:6px;">ADMIN</span></div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--gray);font-size:0.8rem;cursor:pointer;font-family:var(--font-body)">Salir</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">Docentes registrados</div>
+    <div id="prof-list"></div>
+    <button class="add-prof-btn" onclick="openAddProf()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Añadir docente
+    </button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">Resumen mensual del claustro</div>
+    <div class="table-scroll">
+      <table class="admin-table" id="admin-summary-table">
+        <thead>
+          <tr>
+            <th>Docente</th>
+            <th>Sem. actual</th>
+            <th>Mes actual</th>
+            <th>Días fich.</th>
+          </tr>
+        </thead>
+        <tbody id="admin-summary-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">Últimos fichajes · borrado individual</div>
+    <div id="admin-historial-container"></div>
+  </div>
+
+  <div style="height:20px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav" style="display:none">
+  <button class="nav-item active" id="nav-fichar" onclick="switchTab('fichar')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+    Fichar
+  </button>
+  <button class="nav-item" id="nav-stats" onclick="switchTab('stats')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    Estadísticas
+  </button>
+  <button class="nav-item" id="nav-historial" onclick="switchTab('historial')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    Historial
+  </button>
+  <button class="nav-item" id="nav-admin" onclick="switchTab('admin')" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    Admin
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ MODALS -->
+<!-- Admin login -->
+<div class="modal-overlay" id="modal-admin-login">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔑 Acceso administrador</div>
+    <div class="admin-login-form">
+      <div class="form-field">
+        <label class="form-label">Contraseña de administrador</label>
+        <input class="form-input" type="password" id="admin-pass-input" placeholder="••••••" onkeypress="if(event.key==='Enter')checkAdminLogin()">
+      </div>
+      <button class="btn-primary" onclick="checkAdminLogin()">Entrar como Admin</button>
+      <button class="btn-secondary" onclick="closeModal('modal-admin-login')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit profesor -->
+<div class="modal-overlay" id="modal-add-prof">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-prof-title">➕ Añadir docente</div>
+    <div class="form-field">
+      <label class="form-label">Nombre completo</label>
+      <input class="form-input" type="text" id="prof-nombre" placeholder="María García López">
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label class="form-label">Especialidad</label>
+        <input class="form-input" type="text" id="prof-rol" placeholder="Tutora 3ºA">
+      </div>
+      <div class="form-field">
+        <label class="form-label">PIN (4 dígitos)</label>
+        <input class="form-input" type="text" inputmode="numeric" maxlength="4" id="prof-pin" placeholder="1234">
+      </div>
+    </div>
+    <div class="form-field">
+      <label class="form-label">Jornada semanal (horas en centro)</label>
+      <input class="form-input" type="number" id="prof-jornada" value="30" placeholder="30">
+    </div>
+    <button class="btn-primary" id="save-prof-btn" onclick="saveProf()">Guardar docente</button>
+    <button class="btn-danger" id="delete-prof-btn" onclick="deleteProf()" style="display:none">Eliminar docente</button>
+    <button class="btn-danger" id="borrar-recs-btn" onclick="openBorrarRegistros()" style="display:none;background:rgba(245,200,66,0.1);border-color:rgba(245,200,66,0.4);color:var(--gold)">🗑 Borrar registros de fichaje</button>
+    <button class="btn-secondary" onclick="closeModal('modal-add-prof')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal exportar Excel -->
+<div class="modal-overlay" id="modal-export">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📊 Exportar a Excel</div>
+    <p style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;line-height:1.5">
+      El archivo Excel incluye el detalle de cada día (entradas, salidas y total), el resumen de horas y la diferencia respecto a la jornada obligatoria.
+    </p>
+
+    <button class="btn-primary" onclick="exportXLSX('semana')" style="margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Esta semana
+    </button>
+    <button class="btn-primary" onclick="exportXLSX('mes')" style="background:linear-gradient(135deg,#4a6fa5,#6b8fc4);display:flex;align-items:center;justify-content:center;gap:10px">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>
+      Este mes <span style="font-size:0.75rem;opacity:0.75">(+ resumen semanal)</span>
+    </button>
+    <button class="btn-secondary" onclick="closeModal('modal-export')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal borrar registro individual (admin) -->
+<div class="modal-overlay" id="modal-borrar-individual">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑 Borrar fichaje</div>
+    <p id="borrar-ind-info" style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;line-height:1.5"></p>
+    <button class="btn-danger" id="borrar-ind-confirm-btn" onclick="confirmarBorradoIndividual()">Eliminar este fichaje</button>
+    <button class="btn-secondary" onclick="closeModal('modal-borrar-individual')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal borrar registros -->
+<div class="modal-overlay" id="modal-borrar-recs">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🗑 Borrar registros de fichaje</div>
+    <p id="borrar-recs-nombre" style="font-size:0.92rem;font-weight:600;margin-bottom:4px;color:var(--white)"></p>
+    <p style="font-size:0.82rem;color:var(--gray);margin-bottom:20px;line-height:1.5">Selecciona qué registros quieres eliminar. Esta acción <strong style="color:var(--red)">no se puede deshacer</strong>.</p>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:8px">
+      <button class="borrar-periodo-btn" onclick="confirmarBorrado('semana')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:1.4rem">📅</span>
+          <div style="text-align:left">
+            <div style="font-weight:700;font-size:0.92rem">Esta semana</div>
+            <div style="font-size:0.75rem;opacity:0.7" id="borrar-info-semana"></div>
+          </div>
+        </div>
+      </button>
+      <button class="borrar-periodo-btn" onclick="confirmarBorrado('mes')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:1.4rem">🗓</span>
+          <div style="text-align:left">
+            <div style="font-weight:700;font-size:0.92rem">Este mes</div>
+            <div style="font-size:0.75rem;opacity:0.7" id="borrar-info-mes"></div>
+          </div>
+        </div>
+      </button>
+      <button class="borrar-periodo-btn danger" onclick="confirmarBorrado('todo')">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:1.4rem">⚠️</span>
+          <div style="text-align:left">
+            <div style="font-weight:700;font-size:0.92rem">Todos los registros</div>
+            <div style="font-size:0.75rem;opacity:0.7" id="borrar-info-todo"></div>
+          </div>
+        </div>
+      </button>
+    </div>
+    <button class="btn-secondary" onclick="closeModal('modal-borrar-recs')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════ SCRIPTS -->
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getDatabase, ref, set, onValue, off }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+// ══════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ══════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAlW7S4tpn4YYkoov1Uq93KFmT8cY8Uzms",
+  authDomain: "app-reserva-de-portatiles.firebaseapp.com",
+  databaseURL: "https://app-reserva-de-portatiles-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "app-reserva-de-portatiles",
+  storageBucket: "app-reserva-de-portatiles.firebasestorage.app",
+  messagingSenderId: "170712420790",
+  appId: "1:170712420790:web:e52d1831be2985c6af3117"
+};
+const fbApp = initializeApp(firebaseConfig);
+const fsdb  = getFirestore(fbApp);  // Firestore → docentes
+const rtdb  = getDatabase(fbApp);   // Realtime DB → fichajes (<200ms)
+
+// ══════════════════════════════════════════════════════════
+// DATA LAYER — localStorage + Firestore (docentes) + RTDB (fichajes)
+// ══════════════════════════════════════════════════════════
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem('df_' + k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem('df_' + k, JSON.stringify(v)),
+};
+
+const memCache = {};
+const activeListeners = {};
+
+// ── DOCENTES — Firestore ──
+function getProfs() { return LS.get('profs') || []; }
+
+function saveProfs(profs) {
+  LS.set('profs', profs);
+  setDoc(doc(fsdb, 'docenficha_profs', 'claustro'),
+    { profs, updatedAt: serverTimestamp() }
+  ).catch(e => console.warn('Firestore saveProfs:', e));
+}
+
+function listenProfs() {
+  if (activeListeners['profs']) return;
+  activeListeners['profs'] = onSnapshot(
+    doc(fsdb, 'docenficha_profs', 'claustro'),
+    snap => {
+      if (!snap.exists()) return;
+      const profs = snap.data().profs || [];
+      LS.set('profs', profs);
+      populateLoginSelect();
+      if (currentUser) {
+        const updated = profs.find(p => p.id === currentUser.id);
+        if (updated) currentUser = updated;
+      }
+      hideSyncBanner();
+    },
+    err => { console.warn('Firestore profs listener:', err); hideSyncBanner(); }
+  );
+}
+
+// ── FICHAJES — Realtime Database (~100-200ms latencia) ──
+function getRecords(profId) {
+  if (memCache['recs_' + profId]) return memCache['recs_' + profId];
+  return LS.get('recs_' + profId) || [];
+}
+
+function saveRecords(profId, recs) {
+  memCache['recs_' + profId] = recs;
+  LS.set('recs_' + profId, recs);
+  const recsObj = {};
+  recs.forEach(r => { recsObj[String(r.id)] = r; });
+  set(ref(rtdb, `docenficha/${profId}`), recsObj)
+    .catch(e => console.warn('RTDB saveRecords:', e));
+}
+
+function listenRecords(profId) {
+  if (activeListeners['recs_' + profId]) {
+    off(ref(rtdb, `docenficha/${profId}`));
+    delete activeListeners['recs_' + profId];
+  }
+  activeListeners['recs_' + profId] = true;
+  onValue(ref(rtdb, `docenficha/${profId}`), snap => {
+    const data = snap.val() || {};
+    const recs = Object.values(data).sort((a, b) => a.ts - b.ts);
+    const prev = JSON.stringify(memCache['recs_' + profId] || []);
+    const next = JSON.stringify(recs);
+    if (prev === next) return;
+    memCache['recs_' + profId] = recs;
+    LS.set('recs_' + profId, recs);
+    if (currentUser && currentUser.id === profId) {
+      renderFicharScreen();
+      renderStatsScreen();
+      const screenFichar = document.getElementById('screen-fichar');
+      if (!screenFichar?.classList.contains('active')) toast('\u21ba Fichaje sincronizado', 'info');
+    }
+    if (currentUser?.id === 'admin') {
+      const screenAdmin = document.getElementById('screen-admin');
+      if (screenAdmin?.classList.contains('active')) renderAdminScreen();
+    }
+  }, err => console.warn('RTDB listener:', err));
+}
+
+function startRealtimeSync(profId) {
+  listenProfs();
+  listenRecords(profId);
+}
+
+async function syncFromFirebase() {
+  showSyncBanner('Sincronizando con la nube\u2026');
+  listenProfs();
+}
+function showSyncBanner(msg) {
+  let b = document.getElementById('sync-banner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'sync-banner';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:rgba(62,207,184,0.9);color:#1a2744;font-size:0.78rem;font-weight:700;text-align:center;padding:6px;z-index:9999;backdrop-filter:blur(4px)';
+    document.body.prepend(b);
+  }
+  b.textContent = '☁️ ' + msg;
+}
+function hideSyncBanner() {
+  const b = document.getElementById('sync-banner');
+  if (b) { b.textContent = '✓ Datos sincronizados'; setTimeout(() => b.remove(), 1500); }
+}
+
+function getAdminPass() { return LS.get('adminpass') || 'admin1234'; }
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let currentUser = null;
+let isAdmin = false;
+let editingProfId = null;
+let histMonth = new Date().getMonth();
+let histYear = new Date().getFullYear();
+let currentPeriod = 'semana';
+let clockInterval = null;
+let tipoSeleccionado = 'centro'; // 'centro' | 'casa'
+
+function setTipo(tipo) {
+  tipoSeleccionado = tipo;
+  document.getElementById('tipo-centro').classList.toggle('active', tipo === 'centro');
+  document.getElementById('tipo-casa').classList.toggle('active', tipo === 'casa');
+}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+async function init() {
+  // Seed local si no hay nada en absoluto
+  if (getProfs().length === 0) {
+    const seed = [
+      { id: 'u1', nombre: 'Luis Ángel González', rol: 'Coordinador TIC', pin: '1234', jornada: 30, isAdmin: true },
+      { id: 'u2', nombre: 'Ejemplo Tutora', rol: 'Tutora 1ºA', pin: '5678', jornada: 30, isAdmin: false },
+    ];
+    LS.set('profs', seed);
+  }
+  populateLoginSelect();
+  startClock();
+  // Sincronizar desde Firebase (sobrescribe local si hay datos en la nube)
+  syncFromFirebase();
+}
+
+function populateLoginSelect() {
+  const sel = document.getElementById('login-select');
+  const profs = getProfs();
+  sel.innerHTML = '<option value="">— elige un docente —</option>';
+  profs.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.nombre;
+    sel.appendChild(opt);
+  });
+
+  // Cuando el usuario selecciona su nombre, arrancar listener de sus registros
+  // para que al hacer login ya tenga los datos frescos de Firebase
+  sel.onchange = () => {
+    const profId = sel.value;
+    if (profId) listenRecords(profId);
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════════════
+function startClock() {
+  updateClock();
+  if (clockInterval) clearInterval(clockInterval);
+  clockInterval = setInterval(updateClock, 1000);
+}
+
+function updateClock() {
+  const now = new Date();
+  const el = document.getElementById('live-clock');
+  const del = document.getElementById('live-date');
+  if (el) el.textContent = now.toLocaleTimeString('es-ES');
+  if (del) del.textContent = now.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+
+// ══════════════════════════════════════════════════════════
+// LOGIN — BIOMETRIC (WebAuthn real, sin modo demo)
+// ══════════════════════════════════════════════════════════
+
+// Registro biométrico: la primera vez que un docente usa la huella
+// se registra su credencial en el dispositivo. Las veces siguientes
+// solo verifica. Todo ocurre localmente en el dispositivo (FIDO2/WebAuthn).
+const BIO_KEY = 'df_bio_creds'; // mapa profId → credentialId (base64)
+
+function getBioCreds() { try { return JSON.parse(localStorage.getItem(BIO_KEY)) || {}; } catch { return {}; } }
+function saveBioCreds(c) { localStorage.setItem(BIO_KEY, JSON.stringify(c)); }
+
+function bufToB64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function b64ToBuf(b64) {
+  const bin = atob(b64);
+  const buf = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+  return buf.buffer;
+}
+
+async function startBiometric() {
+  const selId = document.getElementById('login-select').value;
+  if (!selId) { toast('Primero selecciona tu nombre 👆', 'error'); return; }
+  const profs = getProfs();
+  const prof = profs.find(p => p.id === selId);
+  if (!prof) return;
+
+  // Comprobar soporte WebAuthn
+  if (!window.PublicKeyCredential) {
+    toast('Este dispositivo no soporta huella dactilar. Usa el PIN.', 'error');
+    return;
+  }
+
+  // Comprobar si el dispositivo puede usar autenticador de plataforma (huella/Face ID)
+  const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(() => false);
+  if (!available) {
+    toast('No hay sensor biométrico disponible en este dispositivo. Usa el PIN.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('bio-btn');
+  const creds = getBioCreds();
+  const storedCredId = creds[prof.id];
+
+  btn.classList.add('scanning');
+
+  try {
+    if (!storedCredId) {
+      // ── PRIMER USO: registrar la huella en este dispositivo ──
+      toast('Primera vez: registra tu huella…', 'info');
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const userId = new TextEncoder().encode(prof.id);
+
+      const regCredential = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: 'DocenFicha CEIP Puente de Simancas', id: location.hostname || 'localhost' },
+          user: { id: userId, name: prof.nombre, displayName: prof.nombre },
+          pubKeyCredParams: [
+            { type: 'public-key', alg: -7 },   // ES256
+            { type: 'public-key', alg: -257 },  // RS256
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',   // sensor del propio dispositivo
+            userVerification: 'required',           // exige biometría (huella/Face ID)
+            residentKey: 'preferred',
+          },
+          timeout: 60000,
+        }
+      });
+
+      // Guardar el credentialId para verificaciones futuras
+      const newCreds = getBioCreds();
+      newCreds[prof.id] = bufToB64(regCredential.rawId);
+      saveBioCreds(newCreds);
+
+      btn.classList.remove('scanning');
+      toast('✓ Huella registrada e identidad verificada', 'success');
+      loginAs(prof);
+
+    } else {
+      // ── USOS POSTERIORES: verificar huella ──
+      toast('Coloca tu huella en el sensor…', 'info');
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const authCredential = await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          timeout: 60000,
+          userVerification: 'required',
+          allowCredentials: [{
+            type: 'public-key',
+            id: b64ToBuf(storedCredId),
+            transports: ['internal'],
+          }],
+        }
+      });
+
+      btn.classList.remove('scanning');
+      if (authCredential) {
+        toast('✓ Huella verificada', 'success');
+        loginAs(prof);
+      }
+    }
+  } catch (err) {
+    btn.classList.remove('scanning');
+    if (err.name === 'NotAllowedError') {
+      toast('Biometría cancelada o denegada', 'error');
+    } else if (err.name === 'InvalidStateError') {
+      // Credencial ya registrada en otro contexto — limpiar y reintentar
+      const nc = getBioCreds();
+      delete nc[prof.id];
+      saveBioCreds(nc);
+      toast('Reinicia el registro de huella (vuelve a intentarlo)', 'error');
+    } else {
+      toast('Error biométrico: ' + err.message, 'error');
+    }
+  }
+}
+
+function pinNext(el, next) {
+  if (el.value.length === 1 && next !== -1) {
+    document.getElementById('p' + next).focus();
+  }
+  if (next === -1) checkPin();
+}
+
+function checkPin() {
+  const pin = ['p0','p1','p2','p3'].map(id => document.getElementById(id).value).join('');
+  const selId = document.getElementById('login-select').value;
+  if (!selId) { toast('Selecciona tu nombre primero', 'error'); clearPin(); return; }
+  const profs = getProfs();
+  const prof = profs.find(p => p.id === selId);
+  if (!prof) return;
+  if (prof.pin === pin) {
+    loginAs(prof);
+  } else {
+    toast('PIN incorrecto ❌', 'error');
+    clearPin();
+  }
+}
+
+function clearPin() {
+  ['p0','p1','p2','p3'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('p0').focus();
+}
+
+function loginAs(prof) {
+  currentUser = prof;
+  isAdmin = false;
+  showMainApp();
+  startRealtimeSync(prof.id);  // ← escucha en tiempo real desde el login
+  toast(`¡Bienvenida/o, ${prof.nombre.split(' ')[0]}! 👋`, 'success');
+}
+
+function showMainApp() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-fichar').classList.add('active');
+  document.getElementById('bottom-nav').style.display = 'flex';
+
+  // Show admin tab only for admin users
+  document.getElementById('nav-admin').style.display = currentUser.isAdmin ? 'flex' : 'none';
+
+  updateTopbars();
+  renderFicharScreen();
+  renderStatsScreen();
+}
+
+function updateTopbars() {
+  const info = `<strong>${currentUser.nombre.split(' ').slice(0,2).join(' ')}</strong>${currentUser.rol}`;
+  ['topbar-user-info','stats-user-info','hist-user-info'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = info;
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// ADMIN LOGIN
+// ══════════════════════════════════════════════════════════
+function showAdminLogin() {
+  document.getElementById('modal-admin-login').classList.add('open');
+}
+
+function checkAdminLogin() {
+  const pass = document.getElementById('admin-pass-input').value;
+  if (pass === getAdminPass()) {
+    closeModal('modal-admin-login');
+    document.getElementById('admin-pass-input').value = '';
+    isAdmin = true;
+    currentUser = { id: 'admin', nombre: 'Administrador', rol: 'Dirección', pin: '', isAdmin: true };
+    showMainApp();
+    switchTab('admin');
+    renderAdminScreen();
+    // Escuchar en tiempo real todos los docentes y sus registros
+    listenProfs();
+    getProfs().forEach(p => listenRecords(p.id));
+  } else {
+    toast('Contraseña incorrecta ❌', 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// FICHAJE
+// ══════════════════════════════════════════════════════════
+function fichar() {
+  if (!currentUser) return;
+  const now = new Date();
+  const recs = getRecords(currentUser.id);
+  const todayKey = dateKey(now);
+  const todayRecs = recs.filter(r => r.date === todayKey);
+
+  const lastRec = todayRecs[todayRecs.length - 1];
+  const isEntrada = !lastRec || lastRec.type === 'salida';
+  const type = isEntrada ? 'entrada' : 'salida';
+
+  const newRec = {
+    id: Date.now(),
+    date: todayKey,
+    time: timeStr(now),
+    ts: now.getTime(),
+    type,
+    tipoBloqueManual: isEntrada ? tipoSeleccionado : undefined,
+  };
+
+  const newRecs = [...recs, newRec];
+
+  // 1. Actualizar memoria y localStorage inmediatamente
+  memCache['recs_' + currentUser.id] = newRecs;
+  LS.set('recs_' + currentUser.id, newRecs);
+
+  // 2. Subir a RTDB (~100ms latencia al otro dispositivo)
+  const recsObj = {};
+  newRecs.forEach(r => { recsObj[String(r.id)] = r; });
+  set(ref(rtdb, `docenficha/${currentUser.id}`), recsObj)
+    .catch(e => console.warn('RTDB fichar:', e));
+
+  const msg = isEntrada
+    ? `✓ Entrada · ${tipoSeleccionado === 'centro' ? '🏫 Permanencia en centro' : '🏠 Libre disposición'}`
+    : '✓ Salida registrada';
+  toast(msg, 'success');
+  renderFicharScreen();
+}
+
+function dateKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function timeStr(d) {
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER FICHAR
+// ══════════════════════════════════════════════════════════
+function renderFicharScreen() {
+  if (!currentUser) return;
+  const now = new Date();
+  const todayKey = dateKey(now);
+  const recs = getRecords(currentUser.id);
+  const todayRecs = recs.filter(r => r.date === todayKey).sort((a,b)=>a.ts-b.ts);
+
+  document.getElementById('user-nombre').textContent = currentUser.nombre;
+
+  const lastRec = todayRecs[todayRecs.length - 1];
+  const isInside = lastRec && lastRec.type === 'entrada';
+  const statusEl = document.getElementById('status-container');
+  const btnEl = document.getElementById('main-action-btn');
+  const tipoSel = document.getElementById('tipo-selector');
+
+  // Mostrar selector de tipo solo cuando se va a fichar ENTRADA
+  tipoSel.style.display = isInside ? 'none' : 'block';
+
+  // Si hay una entrada activa, mostrar qué tipo es
+  if (isInside) {
+    const tipoActivo = lastRec.tipoBloqueManual || 'centro';
+    statusEl.innerHTML = `<span class="status-badge in"><span class="status-dot"></span>${tipoActivo === 'centro' ? '🏫 Fichado · Permanencia en centro' : '🏠 Fichado · Libre disposición'}</span>`;
+  } else {
+    statusEl.innerHTML = `<span class="status-badge out"><span class="status-dot"></span>Sin fichar</span>`;
+  }
+
+  btnEl.className = `big-btn ${isInside ? 'salida' : 'entrada'}`;
+  btnEl.innerHTML = isInside
+    ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Registrar Salida`
+    : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Registrar Entrada`;
+
+  // Today log — buscamos la entrada correspondiente a cada salida para mostrar su tipo
+  const logEl = document.getElementById('today-log-items');
+  if (todayRecs.length === 0) {
+    logEl.innerHTML = '<div class="empty-state" style="padding:16px 0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:36px;height:36px;margin:0 auto 8px;display:block;opacity:0.4"><path d="M12 6v6l4 2M12 2a10 10 0 100 20A10 10 0 0012 2z"/></svg><div>Aún no hay fichajes hoy</div></div>';
+  } else {
+    let html = '';
+    // Construir pares para mostrar tipo de cada bloque
+    let tipoDeBloque = 'centro'; // tipo activo para los registros de salida (hereda de su entrada)
+    todayRecs.forEach((r, idx) => {
+      if (r.type === 'entrada') {
+        tipoDeBloque = r.tipoBloqueManual || 'centro';
+      }
+      const esCentro = tipoDeBloque === 'centro';
+      const tipoBadge = esCentro
+        ? '<span class="chip">🏫 Centro</span>'
+        : '<span class="chip" style="background:rgba(107,143,196,0.15);color:#6b8fc4">🏠 Libre disposición</span>';
+
+      html += `<div class="log-item">
+        <div class="log-type">
+          <div class="log-dot ${r.type}"></div>
+          <span>${r.type === 'entrada' ? 'Entrada' : 'Salida'}</span>
+          ${tipoBadge}
+        </div>
+        <span class="log-time">${r.time}</span>
+      </div>`;
+    });
+
+    // Desglose del día
+    const bd = calcHourBreakdown(todayRecs);
+    if (bd.total > 0) {
+      html += `<div style="display:flex;gap:12px;justify-content:center;padding:10px 0;border-top:1px solid var(--border);margin-top:6px;flex-wrap:wrap">
+        ${bd.centro > 0 ? `<span style="font-size:0.78rem;color:var(--teal);font-weight:700">🏫 Centro: ${formatHours(bd.centro)}</span>` : ''}
+        ${bd.casa > 0   ? `<span style="font-size:0.78rem;color:#6b8fc4;font-weight:700">🏠 Casa: ${formatHours(bd.casa)}</span>`     : ''}
+        <span style="font-size:0.78rem;color:var(--white);font-weight:700">Total: ${formatHours(bd.total)}</span>
+      </div>`;
+    }
+    logEl.innerHTML = html;
+  }
+
+  // Quick weekly — desglose 30+5
+  const wbd = calcWeekBreakdown(currentUser.id);
+  const card = document.getElementById('today-summary-card');
+  const qw = document.getElementById('quick-weekly');
+  card.style.display = 'block';
+  const pctCentro = Math.min(100, (wbd.centro / H_CENTRO_SEMANA) * 100);
+  const pctCasa   = Math.min(100, (wbd.casa   / H_CASA_SEMANA)   * 100);
+  const extraCentro = Math.max(0, wbd.centro - H_CENTRO_SEMANA);
+  const extraCasa   = Math.max(0, wbd.casa   - H_CASA_SEMANA);
+  qw.innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.8rem">
+        <span style="color:var(--teal)">🏫 Centro (${H_CENTRO_SEMANA}h obligatorias)</span>
+        <span style="color:var(--teal);font-weight:700">${formatHours(wbd.centro)}</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill teal" style="width:${pctCentro}%"></div></div>
+      ${extraCentro > 0 ? `<div style="font-size:0.7rem;color:var(--gold);margin-top:3px">+${formatHours(extraCentro)} extra en centro</div>` : `<div style="font-size:0.7rem;color:var(--gray);margin-top:3px">Faltan ${formatHours(H_CENTRO_SEMANA - wbd.centro)}</div>`}
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.8rem">
+        <span style="color:#6b8fc4">🏠 Casa (${H_CASA_SEMANA}h libre disposición)</span>
+        <span style="color:#6b8fc4;font-weight:700">${formatHours(wbd.casa)}</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pctCasa}%;background:linear-gradient(90deg,#4a6fa5,#6b8fc4)"></div></div>
+      ${extraCasa > 0 ? `<div style="font-size:0.7rem;color:var(--gold);margin-top:3px">+${formatHours(extraCasa)} extra en casa</div>` : `<div style="font-size:0.7rem;color:var(--gray);margin-top:3px">Faltan ${formatHours(H_CASA_SEMANA - wbd.casa)}</div>`}
+    </div>
+    <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:0.82rem">
+      <span style="color:var(--gray)">Total semana (${H_TOTAL_SEMANA}h)</span>
+      <span style="color:var(--white);font-weight:700">${formatHours(wbd.total)} / ${H_TOTAL_SEMANA}h</span>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER STATS
+// ══════════════════════════════════════════════════════════
+function renderStatsScreen() {
+  if (!currentUser) return;
+
+  let bd = { centro: 0, casa: 0, total: 0 };
+  let label = '';
+  let targetCentro, targetCasa;
+
+  if (currentPeriod === 'semana') {
+    bd = calcWeekBreakdown(currentUser.id);
+    label = 'Semana ' + getWeekLabel();
+    targetCentro = H_CENTRO_SEMANA;
+    targetCasa   = H_CASA_SEMANA;
+  } else if (currentPeriod === 'mes') {
+    bd = calcMonthBreakdown(currentUser.id, new Date().getMonth(), new Date().getFullYear());
+    label = new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'});
+    targetCentro = H_CENTRO_SEMANA * 4.3;
+    targetCasa   = H_CASA_SEMANA   * 4.3;
+  } else {
+    bd = calcAllBreakdown(currentUser.id);
+    label = 'Desde el inicio del curso';
+    targetCentro = H_CENTRO_SEMANA * 40;
+    targetCasa   = H_CASA_SEMANA   * 40;
+  }
+
+  const extraCentro = Math.max(0, bd.centro - targetCentro);
+  const extraCasa   = Math.max(0, bd.casa   - targetCasa);
+  const extraTotal  = Math.max(0, bd.total  - (targetCentro + targetCasa));
+  const days = countDaysWorked(currentUser.id, currentPeriod);
+
+  document.getElementById('stats-period-label').textContent = label;
+
+  const grid = document.getElementById('metric-grid');
+  grid.innerHTML = `
+    <div class="metric-card">
+      <div class="metric-label">🏫 Horas en centro</div>
+      <div class="metric-value">${formatHours(bd.centro, true)}</div>
+      <div class="metric-unit">de ${targetCentro.toFixed(0)}h obligatorias (08–17h)</div>
+      ${extraCentro > 0 ? `<div class="metric-extra">+${formatHours(extraCentro)} extra</div>` : bd.centro < targetCentro ? `<div class="metric-extra neg">Faltan ${formatHours(targetCentro - bd.centro)}</div>` : ''}
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">🏠 Horas en casa</div>
+      <div class="metric-value" style="color:#6b8fc4">${formatHours(bd.casa, true)}</div>
+      <div class="metric-unit">de ${targetCasa.toFixed(0)}h libre disposición</div>
+      ${extraCasa > 0 ? `<div class="metric-extra">+${formatHours(extraCasa)} extra</div>` : bd.casa < targetCasa ? `<div class="metric-extra neg">Faltan ${formatHours(targetCasa - bd.casa)}</div>` : ''}
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">⏱ Total trabajado</div>
+      <div class="metric-value">${formatHours(bd.total, true)}</div>
+      <div class="metric-unit">de ${(targetCentro + targetCasa).toFixed(0)}h jornada completa</div>
+      ${extraTotal > 0 ? `<div class="metric-extra">+${formatHours(extraTotal)} sobre jornada</div>` : ''}
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">📅 Días registrados</div>
+      <div class="metric-value">${days}</div>
+      <div class="metric-unit">días (incl. fines de semana)</div>
+    </div>
+  `;
+
+  // ── Cuadro libre disposición ──
+  const pctCentro = Math.min(100, (bd.centro / targetCentro) * 100);
+  const pctCasa   = Math.min(100, (bd.casa   / targetCasa)   * 100);
+  const faltanCasa = Math.max(0, targetCasa - bd.casa);
+  const libreEl = document.getElementById('libre-content');
+  libreEl.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div>
+          <div style="font-size:1.8rem;font-family:var(--font-head);font-weight:800;color:#6b8fc4;line-height:1">${formatHours(bd.casa)}</div>
+          <div style="font-size:0.72rem;color:var(--gray);margin-top:2px">de ${targetCasa.toFixed(0)}h de libre disposición</div>
+        </div>
+        <div style="text-align:right">
+          ${bd.casa >= targetCasa
+            ? `<div style="color:var(--green);font-weight:700;font-size:0.88rem">✓ Completadas</div><div style="color:var(--gold);font-size:0.75rem">+${formatHours(extraCasa)} extra</div>`
+            : `<div style="color:#6b8fc4;font-weight:700;font-size:0.88rem">Faltan ${formatHours(faltanCasa)}</div><div style="color:var(--gray);font-size:0.72rem">${Math.round(pctCasa)}% completado</div>`}
+        </div>
+      </div>
+      <div class="progress-bar-bg" style="height:10px">
+        <div class="progress-bar-fill" style="width:${pctCasa}%;background:linear-gradient(90deg,#4a6fa5,#6b8fc4);height:100%"></div>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:12px">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);margin-bottom:8px">¿Qué son las horas de libre disposición?</div>
+      <div style="font-size:0.78rem;color:var(--gray);line-height:1.5">
+        Son las <strong style="color:var(--white)">5 horas semanales</strong> que cada docente trabaja fuera del horario de permanencia en el centro (preparación de clases, corrección, formación, etc.). Se suman a las 30h de centro para completar la jornada de <strong style="color:var(--white)">35h semanales</strong>.
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px;background:rgba(62,207,184,0.08);border:1px solid rgba(62,207,184,0.2);border-radius:10px;padding:10px 12px">
+        <div style="font-size:0.68rem;color:var(--gray);margin-bottom:4px">🏫 PERMANENCIA CENTRO</div>
+        <div style="font-family:var(--font-head);font-weight:700;font-size:1.1rem;color:var(--teal)">${formatHours(bd.centro)}</div>
+        <div style="font-size:0.68rem;color:var(--gray)">obj. ${targetCentro.toFixed(0)}h · ${Math.round(pctCentro)}%</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(107,143,196,0.08);border:1px solid rgba(107,143,196,0.2);border-radius:10px;padding:10px 12px">
+        <div style="font-size:0.68rem;color:var(--gray);margin-bottom:4px">🏠 LIBRE DISPOSICIÓN</div>
+        <div style="font-family:var(--font-head);font-weight:700;font-size:1.1rem;color:#6b8fc4">${formatHours(bd.casa)}</div>
+        <div style="font-size:0.68rem;color:var(--gray)">obj. ${targetCasa.toFixed(0)}h · ${Math.round(pctCasa)}%</div>
+      </div>
+    </div>
+  `;
+
+  renderWeekBars();
+}
+
+function renderWeekBars() {
+  if (!currentUser) return;
+  const container = document.getElementById('week-bars-container');
+  const dayNames = ['L','M','X','J','V','S','D'];
+  const now = new Date();
+  const monday = getMonday(now);
+  let html = '';
+  const maxH = 10;
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = dateKey(d);
+    const dayRecs = getRecords(currentUser.id).filter(r => r.date === key);
+    const bd = calcHourBreakdown(dayRecs);
+    const isWeekend = i >= 5; // Sáb, Dom (índice 5 y 6 desde lunes)
+    const isToday = key === dateKey(now);
+
+    // Barra apilada: primero centro (teal), luego casa (azul), luego extra (naranja)
+    const jornadaDia = isWeekend ? 0 : H_CENTRO_SEMANA / 5; // 6h/día en centro
+    const centroNormal = Math.min(bd.centro, jornadaDia);
+    const centroExtra  = Math.max(0, bd.centro - jornadaDia);
+
+    const pctCentro = (centroNormal / maxH) * 100;
+    const pctExtra  = (centroExtra / maxH) * 100;
+    const pctCasa   = (bd.casa / maxH) * 100;
+
+    html += `
+      <div class="bar-row">
+        <div class="bar-day" style="${isToday ? 'color:var(--gold);font-weight:700' : ''}">${dayNames[i]}</div>
+        <div class="bar-track" style="display:flex">
+          ${centroNormal > 0 ? `<div style="width:${pctCentro}%;background:linear-gradient(90deg,var(--teal-dark),var(--teal));height:100%;border-radius:6px 0 0 6px;display:flex;align-items:center;padding-left:6px;font-size:0.68rem;font-weight:600;color:white;min-width:2px"></div>` : ''}
+          ${bd.casa > 0 ? `<div style="width:${pctCasa}%;background:linear-gradient(90deg,#4a6fa5,#6b8fc4);height:100%;display:flex;align-items:center;font-size:0.68rem;font-weight:600;color:white;min-width:2px;${!centroNormal?'border-radius:6px 0 0 6px':''}"></div>` : ''}
+          ${centroExtra > 0 ? `<div style="width:${pctExtra}%;background:linear-gradient(90deg,#e07b3c,#f5a66a);height:100%;border-radius:0 6px 6px 0;min-width:2px"></div>` : ''}
+          ${bd.total === 0 ? '<div style="width:2px;height:100%;background:rgba(255,255,255,0.1);border-radius:1px"></div>' : ''}
+        </div>
+        <div class="bar-hours" style="${isWeekend ? 'color:#6b8fc4' : ''}">${bd.total > 0 ? formatHours(bd.total) : '–'}</div>
+      </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderStatsScreen();
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER HISTORIAL
+// ══════════════════════════════════════════════════════════
+function renderHistorialScreen() {
+  if (!currentUser) return;
+  const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('hist-month-label').textContent = `${months[histMonth]} ${histYear}`;
+  document.getElementById('hist-user-info').innerHTML = `<strong>${currentUser.nombre.split(' ').slice(0,2).join(' ')}</strong>${currentUser.rol}`;
+
+  const recs = getRecords(currentUser.id);
+  const container = document.getElementById('historial-container');
+
+  // Group by day
+  const days = {};
+  recs.forEach(r => {
+    const d = new Date(r.ts);
+    if (d.getMonth() === histMonth && d.getFullYear() === histYear) {
+      if (!days[r.date]) days[r.date] = [];
+      days[r.date].push(r);
+    }
+  });
+
+  const sortedDays = Object.keys(days).sort((a,b) => b.localeCompare(a));
+
+  if (sortedDays.length === 0) {
+    container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Sin registros este mes</div>';
+    return;
+  }
+
+  let html = '';
+  sortedDays.forEach(dk => {
+    const dayRecs = days[dk].sort((a,b)=>a.ts-b.ts);
+    const d = new Date(dayRecs[0].ts);
+    const isWeekend = [0,6].includes(d.getDay());
+    const totalH = calcTotalHours(dayRecs);
+    const jornada6 = (currentUser.jornada || 30) / 5;
+    const dateLabel = d.toLocaleDateString('es-ES', {weekday:'short', day:'numeric', month:'short'});
+    const totalClass = totalH >= jornada6 ? 'over' : 'good';
+
+    html += `<div class="history-day">
+      <div class="history-day-header" onclick="toggleHistDay(this)">
+        <div>
+          <span class="history-day-date">${dateLabel}</span>
+          ${isWeekend ? ' <span class="chip weekend">Fin de semana</span>' : ''}
+        </div>
+        <span class="history-day-total ${totalClass}">${formatHours(totalH)}</span>
+      </div>
+      <div class="history-day-detail" style="display:none">`;
+
+    for (let i = 0; i < dayRecs.length; i += 2) {
+      const e = dayRecs[i];
+      const s = dayRecs[i+1];
+      html += `<div class="history-pair">
+        <div class="history-pair-times">
+          <span style="color:var(--green)">▶ ${e.time}</span>
+          ${s ? `<span class="history-arrow">→</span><span style="color:var(--red)">■ ${s.time}</span>` : '<span style="color:var(--gold);font-size:0.75rem">En curso</span>'}
+        </div>
+        ${s ? `<span style="color:var(--teal);font-weight:600;font-size:0.82rem">${formatHours(calcDuration(e.ts,s.ts))}</span>` : ''}
+      </div>`;
+    }
+
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleHistDay(header) {
+  const detail = header.nextElementSibling;
+  detail.style.display = detail.style.display === 'none' ? 'block' : 'none';
+}
+
+function changeMonth(dir) {
+  histMonth += dir;
+  if (histMonth > 11) { histMonth = 0; histYear++; }
+  if (histMonth < 0) { histMonth = 11; histYear--; }
+  renderHistorialScreen();
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER ADMIN
+// ══════════════════════════════════════════════════════════
+function renderAdminScreen() {
+  const profs = getProfs();
+  const listEl = document.getElementById('prof-list');
+
+  listEl.innerHTML = profs.map(p => `
+    <div class="prof-card" onclick="openEditProf('${p.id}')">
+      <div class="prof-avatar">${p.nombre.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+      <div class="prof-info">
+        <div class="prof-name">${p.nombre}</div>
+        <div class="prof-role">${p.rol} · PIN: ${p.pin}</div>
+      </div>
+      <span class="prof-badge ${p.isAdmin ? 'admin' : 'active'}">${p.isAdmin ? 'Admin' : 'Activo'}</span>
+    </div>
+  `).join('');
+
+  // Summary table
+  const tbody = document.getElementById('admin-summary-body');
+  tbody.innerHTML = profs.map(p => {
+    const wbd = calcWeekBreakdown(p.id);
+    const monthH = calcMonthHours(p.id, new Date().getMonth(), new Date().getFullYear());
+    const days = countDaysWorked(p.id, 'mes');
+    const weekOk = wbd.total >= H_TOTAL_SEMANA;
+    return `<tr>
+      <td>${p.nombre.split(' ').slice(0,2).join(' ')}</td>
+      <td class="table-hours ${weekOk ? 'over' : 'ok'}">${formatHours(wbd.centro)} + ${formatHours(wbd.casa)}</td>
+      <td class="table-hours ${monthH > 0 ? 'ok' : ''}">${formatHours(monthH)}</td>
+      <td>${days}</td>
+    </tr>`;
+  }).join('');
+
+  // Historial por docente con borrado individual
+  renderAdminHistorial(profs);
+}
+
+function renderAdminHistorial(profs) {
+  const container = document.getElementById('admin-historial-container');
+  if (!container) return;
+
+  const now = new Date();
+  let html = '';
+
+  profs.forEach(p => {
+    const recs = getRecords(p.id).sort((a,b) => b.ts - a.ts).slice(0, 30); // últimos 30
+    if (recs.length === 0) return;
+
+    html += `<div style="margin-bottom:16px">
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        ${p.nombre.split(' ').slice(0,2).join(' ')}
+        <span style="flex:1;height:1px;background:var(--border)"></span>
+      </div>`;
+
+    recs.forEach(r => {
+      const d = new Date(r.ts);
+      const isWeekend = [0,6].includes(d.getDay());
+      const tipo = r.tipoBloqueManual || (isWeekend ? 'casa' : 'centro');
+      const tipoIcon = tipo === 'centro' ? '🏫' : '🏠';
+      const color = r.type === 'entrada' ? 'var(--green)' : 'var(--red)';
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+        <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="flex:1;font-size:0.8rem">
+          <span style="font-weight:600">${r.type === 'entrada' ? 'Entrada' : 'Salida'}</span>
+          <span style="color:var(--gray);margin:0 6px">·</span>
+          <span style="font-family:var(--font-head);font-weight:700">${r.time}</span>
+          <span style="color:var(--gray);margin:0 6px">·</span>
+          <span style="color:var(--gray);font-size:0.75rem">${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</span>
+          <span style="margin-left:6px;font-size:0.7rem">${tipoIcon}</span>
+          ${isWeekend ? '<span class="chip weekend" style="margin-left:4px;font-size:0.65rem">Fin de semana</span>' : ''}
+        </div>
+        <button onclick="abrirBorrarIndividual('${p.id}','${r.id}')" style="background:rgba(242,92,92,0.1);border:1px solid rgba(242,92,92,0.25);border-radius:6px;color:var(--red);font-size:0.72rem;padding:4px 10px;cursor:pointer;font-family:var(--font-body);white-space:nowrap">🗑 Borrar</button>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html || '<div class="empty-state">Sin registros recientes</div>';
+}
+
+// Estado para borrado individual
+let borrarIndProfId = null;
+let borrarIndRecId  = null;
+
+function abrirBorrarIndividual(profId, recId) {
+  const profs = getProfs();
+  const p = profs.find(p => p.id === profId);
+  const recs = getRecords(profId);
+  const r = recs.find(r => String(r.id) === String(recId));
+  if (!r || !p) return;
+
+  borrarIndProfId = profId;
+  borrarIndRecId  = recId;
+
+  const d = new Date(r.ts);
+  document.getElementById('borrar-ind-info').innerHTML = `
+    Vas a eliminar el siguiente fichaje de <strong style="color:var(--white)">${p.nombre.split(' ')[0]}</strong>:<br><br>
+    <span style="font-family:var(--font-head);font-size:1.1rem;color:${r.type==='entrada'?'var(--green)':'var(--red)'}">
+      ${r.type === 'entrada' ? '▶ Entrada' : '■ Salida'} · ${r.time}
+    </span><br>
+    <span style="font-size:0.8rem;color:var(--gray)">${d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}</span><br><br>
+    <span style="color:var(--red);font-size:0.78rem">⚠ Esta acción no se puede deshacer.</span>
+  `;
+  document.getElementById('modal-borrar-individual').classList.add('open');
+}
+
+window.abrirBorrarIndividual = abrirBorrarIndividual;
+
+function confirmarBorradoIndividual() {
+  if (!borrarIndProfId || !borrarIndRecId) return;
+  const recs = getRecords(borrarIndProfId);
+  const nuevos = recs.filter(r => String(r.id) !== String(borrarIndRecId));
+
+  // Actualizar memoria, localStorage y Firestore
+  saveRecords(borrarIndProfId, nuevos);
+
+  closeModal('modal-borrar-individual');
+  renderAdminScreen();
+  toast('✓ Fichaje eliminado', 'success');
+  borrarIndProfId = null;
+  borrarIndRecId  = null;
+}
+
+function openAddProf() {
+  editingProfId = null;
+  document.getElementById('modal-prof-title').textContent = '➕ Añadir docente';
+  document.getElementById('prof-nombre').value = '';
+  document.getElementById('prof-rol').value = '';
+  document.getElementById('prof-pin').value = '';
+  document.getElementById('prof-jornada').value = '30';
+  document.getElementById('delete-prof-btn').style.display = 'none';
+  document.getElementById('borrar-recs-btn').style.display = 'none';
+  document.getElementById('modal-add-prof').classList.add('open');
+}
+
+function openEditProf(id) {
+  if (currentUser.id !== 'admin') return;
+  const profs = getProfs();
+  const p = profs.find(p => p.id === id);
+  if (!p) return;
+  editingProfId = id;
+  document.getElementById('modal-prof-title').textContent = '✏️ Editar docente';
+  document.getElementById('prof-nombre').value = p.nombre;
+  document.getElementById('prof-rol').value = p.rol;
+  document.getElementById('prof-pin').value = p.pin;
+  document.getElementById('prof-jornada').value = p.jornada || 30;
+  document.getElementById('delete-prof-btn').style.display = 'block';
+  document.getElementById('borrar-recs-btn').style.display = 'block';
+  document.getElementById('modal-add-prof').classList.add('open');
+}
+
+function openBorrarRegistros() {
+  if (!editingProfId) return;
+  const profs = getProfs();
+  const p = profs.find(p => p.id === editingProfId);
+  if (!p) return;
+
+  closeModal('modal-add-prof');
+
+  // Calcular info de registros por período
+  const allRecs = getRecords(editingProfId);
+  const now = new Date();
+
+  const monday = getMonday(now);
+  const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59);
+  const semanaRecs = allRecs.filter(r => { const d=new Date(r.ts); return d>=monday && d<=sunday; });
+
+  const mesRecs = allRecs.filter(r => { const d=new Date(r.ts); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); });
+
+  const days = dk => new Set(dk.map(r=>r.date)).size;
+
+  document.getElementById('borrar-recs-nombre').textContent = p.nombre;
+  document.getElementById('borrar-info-semana').textContent =
+    semanaRecs.length > 0 ? `${semanaRecs.length} fichajes · ${days(semanaRecs)} días` : 'Sin registros esta semana';
+  document.getElementById('borrar-info-mes').textContent =
+    mesRecs.length > 0 ? `${mesRecs.length} fichajes · ${days(mesRecs)} días · ${now.toLocaleDateString('es-ES',{month:'long'})}` : 'Sin registros este mes';
+  document.getElementById('borrar-info-todo').textContent =
+    allRecs.length > 0 ? `${allRecs.length} fichajes en total · ${days(allRecs)} días` : 'Sin registros';
+
+  document.getElementById('modal-borrar-recs').classList.add('open');
+}
+
+function confirmarBorrado(periodo) {
+  if (!editingProfId) return;
+  const profs = getProfs();
+  const p = profs.find(p => p.id === editingProfId);
+  const nombre = p ? p.nombre.split(' ')[0] : 'este docente';
+
+  const labels = { semana: 'los registros de esta semana', mes: 'los registros de este mes', todo: 'TODOS los registros' };
+  if (!confirm(`¿Borrar ${labels[periodo]} de ${nombre}?\n\nEsta acción no se puede deshacer.`)) return;
+
+  const allRecs = getRecords(editingProfId);
+  const now = new Date();
+  let recsRestantes = allRecs;
+
+  if (periodo === 'semana') {
+    const monday = getMonday(now);
+    const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59);
+    recsRestantes = allRecs.filter(r => { const d=new Date(r.ts); return !(d>=monday && d<=sunday); });
+  } else if (periodo === 'mes') {
+    recsRestantes = allRecs.filter(r => { const d=new Date(r.ts); return !(d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear()); });
+  } else {
+    recsRestantes = [];
+  }
+
+  saveRecords(editingProfId, recsRestantes);
+  closeModal('modal-borrar-recs');
+  renderAdminScreen();
+
+  const borrados = allRecs.length - recsRestantes.length;
+  toast(`✓ ${borrados} registro${borrados!==1?'s':''} eliminado${borrados!==1?'s':''} de ${nombre}`, 'success');
+}
+
+function saveProf() {
+  const nombre = document.getElementById('prof-nombre').value.trim();
+  const rol = document.getElementById('prof-rol').value.trim();
+  const pin = document.getElementById('prof-pin').value.trim();
+  const jornada = parseInt(document.getElementById('prof-jornada').value) || 30;
+
+  if (!nombre || pin.length < 4) { toast('Completa nombre y PIN (4 dígitos)', 'error'); return; }
+
+  const profs = getProfs();
+  if (editingProfId) {
+    const idx = profs.findIndex(p => p.id === editingProfId);
+    if (idx !== -1) profs[idx] = { ...profs[idx], nombre, rol, pin, jornada };
+  } else {
+    profs.push({ id: 'u' + Date.now(), nombre, rol, pin, jornada, isAdmin: false });
+  }
+  saveProfs(profs);
+  populateLoginSelect();
+  renderAdminScreen();
+  closeModal('modal-add-prof');
+  toast(editingProfId ? 'Docente actualizado ✓' : 'Docente añadido ✓', 'success');
+}
+
+function deleteProf() {
+  if (!editingProfId) return;
+  if (!confirm('¿Eliminar este docente y todos sus registros?')) return;
+  const profs = getProfs().filter(p => p.id !== editingProfId);
+  saveProfs(profs);
+  localStorage.removeItem('df_recs_' + editingProfId);
+  populateLoginSelect();
+  renderAdminScreen();
+  closeModal('modal-add-prof');
+  toast('Docente eliminado', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+// JORNADA DOCENTE
+// 35h semanales = 30h presencia en centro + 5h libre disposición
+// CENTRO: lunes–viernes, 08:00–17:00
+// CASA:   antes de 08:00, después de 17:00, sábados y domingos
+// ══════════════════════════════════════════════════════════
+const HORA_INICIO_CENTRO = 8;   // 08:00
+const HORA_FIN_CENTRO    = 17;  // 17:00
+const H_CENTRO_SEMANA    = 30;  // horas obligatorias en centro
+const H_CASA_SEMANA      = 5;   // horas libre disposición
+const H_TOTAL_SEMANA     = 35;  // total
+
+// Dado un par entrada/salida, calcula cuántas horas son en centro y cuántas en casa.
+// Las horas fuera del tramo 08-17 o en fin de semana se clasifican como "casa".
+function splitHours(entTs, salTs) {
+  const entDate = new Date(entTs);
+  const salDate = new Date(salTs);
+  const isWeekend = [0, 6].includes(entDate.getDay()); // Dom=0, Sáb=6
+
+  if (isWeekend) {
+    // Todo el bloque es trabajo en casa
+    return { centro: 0, casa: (salTs - entTs) / 3600000 };
+  }
+
+  // Construir ventana de centro para ese día
+  const centroStart = new Date(entDate);
+  centroStart.setHours(HORA_INICIO_CENTRO, 0, 0, 0);
+  const centroEnd = new Date(entDate);
+  centroEnd.setHours(HORA_FIN_CENTRO, 0, 0, 0);
+
+  // Solapamiento real entre el fichaje y la ventana de centro
+  const overlapStart = Math.max(entTs, centroStart.getTime());
+  const overlapEnd   = Math.min(salTs, centroEnd.getTime());
+  const centroH      = Math.max(0, (overlapEnd - overlapStart) / 3600000);
+  const totalH       = (salTs - entTs) / 3600000;
+  const casaH        = Math.max(0, totalH - centroH);
+
+  return { centro: centroH, casa: casaH };
+}
+
+// Calcula totales (centro + casa + total) a partir de un array de registros de un día/período.
+// Si la entrada tiene tipoBloqueManual, usa ese valor. Si no (registros sin tipo), deduce por horario.
+function calcHourBreakdown(recs) {
+  let centro = 0, casa = 0;
+  const sorted = [...recs].sort((a, b) => a.ts - b.ts);
+  for (let i = 0; i < sorted.length - 1; i += 2) {
+    const entrada = sorted[i];
+    const salida  = sorted[i+1];
+    if (entrada.type === 'entrada' && salida?.type === 'salida') {
+      const durH = (salida.ts - entrada.ts) / 3600000;
+      if (entrada.tipoBloqueManual === 'casa') {
+        casa += durH;
+      } else if (entrada.tipoBloqueManual === 'centro') {
+        centro += durH;
+      } else {
+        // Retrocompatibilidad: deducir por horario
+        const split = splitHours(entrada.ts, salida.ts);
+        centro += split.centro;
+        casa   += split.casa;
+      }
+    }
+  }
+  return { centro, casa, total: centro + casa };
+}
+
+// Mantiene la firma anterior para compatibilidad en el resto del código
+function calcTotalHours(recs) {
+  return calcHourBreakdown(recs).total;
+}
+
+function calcDuration(ts1, ts2) { return (ts2 - ts1) / 3600000; }
+
+function filterWeekRecs(profId, refDate) {
+  const now = refDate || new Date();
+  const monday = getMonday(now);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59);
+  return getRecords(profId).filter(r => {
+    const d = new Date(r.ts);
+    return d >= monday && d <= sunday;
+  });
+}
+
+function calcWeekHours(profId) {
+  return calcTotalHours(filterWeekRecs(profId));
+}
+
+function calcWeekBreakdown(profId) {
+  return calcHourBreakdown(filterWeekRecs(profId));
+}
+
+function calcMonthHours(profId, month, year) {
+  const recs = getRecords(profId).filter(r => {
+    const d = new Date(r.ts);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+  return calcTotalHours(recs);
+}
+
+function calcMonthBreakdown(profId, month, year) {
+  const recs = getRecords(profId).filter(r => {
+    const d = new Date(r.ts);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+  return calcHourBreakdown(recs);
+}
+
+function calcAllHours(profId) {
+  return calcTotalHours(getRecords(profId));
+}
+
+function calcAllBreakdown(profId) {
+  return calcHourBreakdown(getRecords(profId));
+}
+
+function countDaysWorked(profId, period) {
+  const recs = getRecords(profId);
+  const now = new Date();
+  let filtered = recs;
+  if (period === 'semana') {
+    const monday = getMonday(now);
+    filtered = recs.filter(r => new Date(r.ts) >= monday);
+  } else if (period === 'mes') {
+    filtered = recs.filter(r => {
+      const d = new Date(r.ts);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+  }
+  const dates = new Set(filtered.map(r => r.date));
+  return dates.size;
+}
+
+// Etiqueta del tipo de jornada en un momento dado
+function tipoJornada(ts) {
+  const d = new Date(ts);
+  const dow = d.getDay(); // 0=Dom, 6=Sáb
+  if (dow === 0 || dow === 6) return 'casa';
+  const h = d.getHours();
+  if (h >= HORA_INICIO_CENTRO && h < HORA_FIN_CENTRO) return 'centro';
+  return 'casa';
+}
+
+function getMonday(d) {
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  const mon = new Date(d);
+  mon.setDate(diff);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function getWeekLabel() {
+  const now = new Date();
+  const mon = getMonday(now);
+  return `${mon.getDate()}/${mon.getMonth()+1}–${new Date(now.getFullYear(),now.getMonth(),mon.getDate()+6).getDate()}/${mon.getMonth()+1}`;
+}
+
+function formatHours(h, short = false) {
+  if (h < 0) h = 0;
+  const hrs = Math.floor(h);
+  const mins = Math.round((h - hrs) * 60);
+  if (short) return `${hrs}h`;
+  return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+}
+
+// ══════════════════════════════════════════════════════════
+// EXPORT — XLSX con SheetJS
+// ══════════════════════════════════════════════════════════
+
+function openExportModal() {
+  document.getElementById('modal-export').classList.add('open');
+}
+
+function buildExcelRows(recs) {
+  const days = {};
+  recs.forEach(r => { if (!days[r.date]) days[r.date]=[]; days[r.date].push(r); });
+  const rows = [];
+  Object.keys(days).sort().forEach(dk => {
+    const dayRecs = days[dk].sort((a,b)=>a.ts-b.ts);
+    const d = new Date(dayRecs[0].ts);
+    const isWeekend = [0,6].includes(d.getDay());
+    const entradas = dayRecs.filter(r=>r.type==='entrada').map(r=>r.time).join(' / ');
+    const salidas  = dayRecs.filter(r=>r.type==='salida').map(r=>r.time).join(' / ');
+    const bd       = calcHourBreakdown(dayRecs);
+    const totalMin = Math.round(bd.total * 60);
+    rows.push({
+      'Fecha':              dk,
+      'Día semana':         d.toLocaleDateString('es-ES',{weekday:'long'}),
+      'Tipo jornada':       isWeekend ? 'Casa (fin de semana)' : 'Laboral',
+      'Entradas':           entradas,
+      'Salidas':            salidas,
+      'H. en centro (08-17h)': parseFloat(bd.centro.toFixed(2)),
+      'H. en casa':         parseFloat(bd.casa.toFixed(2)),
+      'Total horas':        parseFloat(bd.total.toFixed(2)),
+      'Total (hh:mm)':      `${Math.floor(totalMin/60)}h ${String(totalMin%60).padStart(2,'0')}m`,
+    });
+  });
+  return rows;
+}
+
+async function exportXLSX(period) {
+  if (!currentUser) return;
+  closeModal('modal-export');
+
+  // Cargar SheetJS desde CDN si no está disponible
+  if (typeof XLSX === 'undefined') {
+    toast('Cargando Excel…', 'info');
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  const now = new Date();
+  let recs = getRecords(currentUser.id);
+  let periodoLabel = '';
+  let fileName = '';
+
+  if (period === 'semana') {
+    const monday = getMonday(now);
+    const sunday = new Date(monday); sunday.setDate(monday.getDate()+6); sunday.setHours(23,59,59);
+    recs = recs.filter(r => { const d=new Date(r.ts); return d>=monday && d<=sunday; });
+    periodoLabel = `Semana del ${monday.toLocaleDateString('es-ES')} al ${sunday.toLocaleDateString('es-ES')}`;
+    fileName = `DocenFicha_${currentUser.nombre.split(' ').join('_')}_semana_${monday.toISOString().slice(0,10)}.xlsx`;
+  } else {
+    const m = now.getMonth(), y = now.getFullYear();
+    recs = recs.filter(r => { const d=new Date(r.ts); return d.getMonth()===m && d.getFullYear()===y; });
+    periodoLabel = now.toLocaleDateString('es-ES',{month:'long',year:'numeric'});
+    fileName = `DocenFicha_${currentUser.nombre.split(' ').join('_')}_${String(m+1).padStart(2,'0')}-${y}.xlsx`;
+  }
+
+  if (recs.length === 0) { toast('No hay datos en ese período', 'error'); return; }
+
+  const rows = buildExcelRows(recs);
+  const totalCentro = rows.reduce((s,r)=>s+r['H. en centro (08-17h)'],0);
+  const totalCasa   = rows.reduce((s,r)=>s+r['H. en casa'],0);
+  const totalH      = rows.reduce((s,r)=>s+r['Total horas'],0);
+  const targetCentro = period === 'semana' ? H_CENTRO_SEMANA : H_CENTRO_SEMANA * 4.3;
+  const targetCasa   = period === 'semana' ? H_CASA_SEMANA   : H_CASA_SEMANA   * 4.3;
+
+  // ── Construir workbook ──
+  const wb = XLSX.utils.book_new();
+
+  // Hoja 1: Detalle diario
+  const ws1Data = [
+    [`DocenFicha · Registro horario — ${periodoLabel}`],
+    [`Docente: ${currentUser.nombre}  |  ${currentUser.rol}  |  CEIP Puente de Simancas, Valladolid`],
+    [`Generado: ${now.toLocaleString('es-ES')}`],
+    [`Jornada: ${H_CENTRO_SEMANA}h presencia en centro (L–V, 08:00–17:00) + ${H_CASA_SEMANA}h libre disposición en casa = ${H_TOTAL_SEMANA}h/semana`],
+    [],
+    Object.keys(rows[0]),  // cabeceras
+    ...rows.map(r => Object.values(r)),
+    [],
+    ['TOTAL PERÍODO', '', '', '', '',
+      parseFloat(totalCentro.toFixed(2)),
+      parseFloat(totalCasa.toFixed(2)),
+      parseFloat(totalH.toFixed(2)),
+      `${Math.floor(totalH)}h ${Math.round((totalH%1)*60)}m`],
+    [`Jornada obligatoria (${period==='semana'?'semana':'mes aprox.'})`, '', '', '', '',
+      parseFloat(targetCentro.toFixed(1)),
+      parseFloat(targetCasa.toFixed(1)),
+      parseFloat((targetCentro+targetCasa).toFixed(1)), ''],
+    [`Diferencia`, '', '', '', '',
+      parseFloat((totalCentro-targetCentro).toFixed(2)),
+      parseFloat((totalCasa-targetCasa).toFixed(2)),
+      parseFloat((totalH-(targetCentro+targetCasa)).toFixed(2)), ''],
+  ];
+
+  const ws1 = XLSX.utils.aoa_to_sheet(ws1Data);
+  ws1['!cols'] = [{wch:12},{wch:14},{wch:18},{wch:16},{wch:16},{wch:20},{wch:14},{wch:13},{wch:13}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Registro detallado');
+
+  // Hoja 2: Resumen por semana (solo en exportación mensual)
+  if (period === 'mes') {
+    const allRecs = getRecords(currentUser.id);
+    const m = now.getMonth(), y = now.getFullYear();
+    const monthRecs = allRecs.filter(r=>{ const d=new Date(r.ts); return d.getMonth()===m&&d.getFullYear()===y; });
+
+    // Agrupar por semana
+    const weekMap = {};
+    monthRecs.forEach(r => {
+      const d = new Date(r.ts);
+      const mon = getMonday(d);
+      const wk = mon.toISOString().slice(0,10);
+      if (!weekMap[wk]) weekMap[wk] = [];
+      weekMap[wk].push(r);
+    });
+
+    const ws2Data = [
+      ['Resumen semanal — ' + periodoLabel],
+      [`Jornada: ${H_CENTRO_SEMANA}h centro + ${H_CASA_SEMANA}h casa = ${H_TOTAL_SEMANA}h/semana`],
+      [],
+      ['Semana (lunes)', 'Días registrados', 'H. en centro', 'H. en casa', 'Total horas', `Obj. centro (${H_CENTRO_SEMANA}h)`, `Obj. casa (${H_CASA_SEMANA}h)`, 'Diferencia total'],
+    ];
+    Object.keys(weekMap).sort().forEach(wk => {
+      const wRecs = weekMap[wk];
+      const wbd = calcHourBreakdown(wRecs);
+      const days = new Set(wRecs.map(r=>r.date)).size;
+      const diffTotal = parseFloat((wbd.total - H_TOTAL_SEMANA).toFixed(2));
+      ws2Data.push([wk, days,
+        parseFloat(wbd.centro.toFixed(2)),
+        parseFloat(wbd.casa.toFixed(2)),
+        parseFloat(wbd.total.toFixed(2)),
+        H_CENTRO_SEMANA,
+        H_CASA_SEMANA,
+        diffTotal]);
+    });
+
+    const ws2 = XLSX.utils.aoa_to_sheet(ws2Data);
+    ws2['!cols'] = [{wch:14},{wch:16},{wch:14},{wch:12},{wch:13},{wch:18},{wch:15},{wch:16}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Resumen semanal');
+  }
+
+  // Descargar
+  XLSX.writeFile(wb, fileName);
+  toast(`✓ Excel descargado (${period === 'semana' ? 'semana' : 'mes'})`, 'success');
+}
+
+function exportPrint() {
+  if (!currentUser) return;
+  const recs = getRecords(currentUser.id).sort((a,b)=>a.ts-b.ts);
+  const monthH = calcMonthHours(currentUser.id, new Date().getMonth(), new Date().getFullYear());
+  const weekH = calcWeekHours(currentUser.id);
+
+  let rows = '';
+  const days = {};
+  recs.forEach(r => { if (!days[r.date]) days[r.date]=[]; days[r.date].push(r); });
+  Object.keys(days).sort().forEach(dk => {
+    const dayRecs = days[dk].sort((a,b)=>a.ts-b.ts);
+    const h = calcTotalHours(dayRecs);
+    const d = new Date(dayRecs[0].ts);
+    rows += `<tr><td>${d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'})}</td><td>${dayRecs.filter(r=>r.type==='entrada').map(r=>r.time).join(', ')}</td><td>${dayRecs.filter(r=>r.type==='salida').map(r=>r.time).join(', ')}</td><td>${formatHours(h)}</td></tr>`;
+  });
+
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>DocenFicha · ${currentUser.nombre}</title><style>
+    body{font-family:Arial,sans-serif;padding:20px;font-size:12px}
+    h1{font-size:18px;margin-bottom:4px}
+    h2{font-size:12px;color:#666;margin-bottom:16px;font-weight:normal}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #ddd;padding:6px 10px;text-align:left}
+    th{background:#f0f0f0;font-weight:600}
+    .summary{display:flex;gap:30px;margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:6px}
+    .sm label{font-size:10px;color:#666;display:block}
+    .sm strong{font-size:16px}
+    @media print{button{display:none}}
+  </style></head><body>
+    <h1>DocenFicha · Registro horario</h1>
+    <h2>${currentUser.nombre} · ${currentUser.rol} · CEIP Puente de Simancas</h2>
+    <div class="summary">
+      <div class="sm"><label>Semana actual</label><strong>${formatHours(weekH)}</strong></div>
+      <div class="sm"><label>Mes actual</label><strong>${formatHours(monthH)}</strong></div>
+      <div class="sm"><label>Jornada semanal</label><strong>${currentUser.jornada||30}h centro + 5h libre</strong></div>
+    </div>
+    <table><thead><tr><th>Día</th><th>Entradas</th><th>Salidas</th><th>Total</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <p style="margin-top:16px;font-size:10px;color:#999">Generado con DocenFicha · ${new Date().toLocaleString('es-ES')} · CEIP Puente de Simancas, Valladolid</p>
+    <button onclick="window.print()" style="margin-top:12px;padding:8px 16px">🖨️ Imprimir</button>
+  </body></html>`);
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function switchTab(tab) {
+  const screens = ['fichar','stats','historial','admin'];
+  screens.forEach(s => {
+    const scr = document.getElementById('screen-' + s);
+    const nav = document.getElementById('nav-' + s);
+    if (scr) scr.classList.toggle('active', s === tab);
+    if (nav) nav.classList.toggle('active', s === tab);
+  });
+
+  if (tab === 'historial') renderHistorialScreen();
+  if (tab === 'stats') renderStatsScreen();
+  if (tab === 'admin') renderAdminScreen();
+  if (tab === 'fichar') renderFicharScreen();
+}
+
+function logout() {
+  currentUser = null;
+  isAdmin = false;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('bottom-nav').style.display = 'none';
+  document.getElementById('login-select').value = '';
+  clearPin();
+}
+
+// ══════════════════════════════════════════════════════════
+// MODALS & TOAST
+// ══════════════════════════════════════════════════════════
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+
+let toastTimeout;
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════════════════
+// START
+// ══════════════════════════════════════════════════════════
+
+// Exponer funciones al scope global (necesario porque el script es type="module")
+// ══════════════════════════════════════════════════════════
+// PWA — Service Worker + Instalación
+// ══════════════════════════════════════════════════════════
+
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] Registrado:', reg.scope))
+      .catch(err => console.warn('[SW] Error:', err));
+  });
+}
+
+let deferredInstallPrompt = null;
+
+const yaInstalada = window.matchMedia('(display-mode: standalone)').matches
+                 || window.navigator.standalone === true;
+
+function showInstallButtons() {
+  ['btn-instalar-login', 'btn-instalar-topbar'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = 'flex';
+  });
+}
+function hideInstallButtons() {
+  ['btn-instalar-login', 'btn-instalar-topbar'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = 'none';
+  });
+}
+
+// Capturar el prompt nativo cuando Chrome lo ofrezca
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  // El prompt ya está listo — el botón ya debería estar visible
+});
+
+// Si el usuario la instala, ocultar botones
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  hideInstallButtons();
+  toast('✓ DocenFicha instalada correctamente', 'success');
+});
+
+// Mostrar botones inmediatamente si NO está ya instalada
+if (!yaInstalada) {
+  window.addEventListener('DOMContentLoaded', () => showInstallButtons());
+}
+
+window.installPWA = async function() {
+  if (deferredInstallPrompt) {
+    // Android Chrome — diálogo nativo
+    try {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') {
+        deferredInstallPrompt = null;
+        hideInstallButtons();
+      }
+    } catch(e) {
+      console.warn('Install prompt error:', e);
+    }
+  } else {
+    // iOS o Chrome sin prompt aún — instrucciones manuales
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      toast('En Safari: pulsa ⬆ Compartir → "Añadir a inicio"', 'info');
+    } else {
+      // Chrome en escritorio o Android sin prompt: indicar menú del navegador
+      toast('Pulsa ⋮ (menú Chrome) → "Instalar aplicación"', 'info');
+    }
+  }
+};
+
+window.confirmarBorradoIndividual = confirmarBorradoIndividual;
+window.startBiometric    = startBiometric;
+window.pinNext           = pinNext;
+window.showAdminLogin    = showAdminLogin;
+window.checkAdminLogin   = checkAdminLogin;
+window.fichar            = fichar;
+window.setTipo           = setTipo;
+window.switchTab         = switchTab;
+window.logout            = logout;
+window.setPeriod         = setPeriod;
+window.changeMonth       = changeMonth;
+window.toggleHistDay     = toggleHistDay;
+window.openAddProf       = openAddProf;
+window.openEditProf      = openEditProf;
+window.saveProf          = saveProf;
+window.deleteProf        = deleteProf;
+window.openBorrarRegistros = openBorrarRegistros;
+window.confirmarBorrado  = confirmarBorrado;
+window.openExportModal   = openExportModal;
+window.exportXLSX        = exportXLSX;
+window.exportPrint       = exportPrint;
+window.closeModal        = closeModal;
+
+init();
+
+/* ── REGLAS FIRESTORE recomendadas para esta app ──────────
+   Pégalas en Firebase Console → Firestore → Rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // DocenFicha — solo lectura/escritura libre (app de intranet escolar)
+    match /docenficha_profs/{docId} {
+      allow read, write: if true;
+    }
+    match /docenficha_registros/{profId} {
+      allow read, write: if true;
+    }
+  }
+}
+────────────────────────────────────────────────────────── */
+</script>
+</body>
+</html>
