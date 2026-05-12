@@ -1514,13 +1514,63 @@ function loginAs(prof) {
   // Limpiar caché en memoria para forzar lectura fresca de Firestore
   delete memCache['recs_' + prof.id];
 
-  // Mostrar app inmediatamente con los datos de localStorage
-  showMainApp();
+  // Mostrar spinner mientras carga Firestore
+  showSyncBanner('Cargando tu registro…');
 
-  // Arrancar listener — cuando Firestore responda, onSnapshot actualizará
-  // automáticamente la pantalla con los datos reales (anula cualquier dato viejo de LS)
-  startRealtimeSync(prof.id);
-  toast(`¡Bienvenida/o, ${prof.nombre.split(' ')[0]}! 👋`, 'success');
+  // Arrancar listener PRIMERO — esperar al primer snapshot antes de mostrar la app
+  listenProfs();
+  listenRecordsAndThen(prof.id, () => {
+    hideSyncBanner();
+    showMainApp();
+    toast(`¡Bienvenida/o, ${prof.nombre.split(' ')[0]}! 👋`, 'success');
+  });
+}
+}
+
+// Versión de listenRecords que ejecuta un callback tras el primer snapshot
+function listenRecordsAndThen(profId, callback) {
+  if (activeListeners['recs_' + profId]) {
+    activeListeners['recs_' + profId]();
+    delete activeListeners['recs_' + profId];
+  }
+
+  let primerSnapshot = true;
+
+  const unsub = onSnapshot(
+    doc(db, 'docenficha_registros', profId),
+    snap => {
+      const recs = snap.exists() ? (snap.data().recs || []) : [];
+      memCache['recs_' + profId] = recs;
+      LS.set('recs_' + profId, recs);
+
+      if (primerSnapshot) {
+        primerSnapshot = false;
+        // Mostrar la app con los datos correctos de Firestore
+        if (callback) { callback(); callback = null; }
+        // Desde aquí el listener sigue activo para cambios posteriores
+        return;
+      }
+
+      // Snapshots posteriores — actualizar pantalla si hay cambios
+      if (currentUser && currentUser.id === profId) {
+        renderFicharScreen();
+        renderStatsScreen();
+        const screenFichar = document.getElementById('screen-fichar');
+        if (!screenFichar?.classList.contains('active')) toast('↺ Fichaje sincronizado', 'info');
+      }
+      if (currentUser?.id === 'admin') {
+        const screenAdmin = document.getElementById('screen-admin');
+        if (screenAdmin?.classList.contains('active')) renderAdminScreen();
+      }
+    },
+    err => {
+      console.warn('Firestore recs listener:', err);
+      // Si Firestore falla, mostrar app con datos locales
+      if (primerSnapshot && callback) { primerSnapshot = false; callback(); callback = null; }
+    }
+  );
+
+  activeListeners['recs_' + profId] = unsub;
 }
 
 function showMainApp() {
@@ -2276,25 +2326,35 @@ function splitHours(entTs, salTs) {
   return { centro: centroH, casa: casaH };
 }
 
-// Calcula totales (centro + casa + total) a partir de un array de registros de un día/período.
-// Si hay una entrada sin salida (sesión en curso), cuenta las horas hasta ahora.
+// Calcula totales (centro + casa + total) a partir de un array de registros.
+// Empareja entradas con su salida siguiente. Si hay entrada sin salida, usa ahora.
 function calcHourBreakdown(recs, ahora) {
   let centro = 0, casa = 0;
   const now = ahora || Date.now();
   const sorted = [...recs].sort((a, b) => a.ts - b.ts);
-  for (let i = 0; i < sorted.length; i += 2) {
-    const entrada = sorted[i];
-    if (!entrada || entrada.type !== 'entrada') continue;
-    const salida = sorted[i + 1];
-    // Si no hay salida, la sesión está en curso — usar ahora como salida virtual
-    const salidaTs = (salida && salida.type === 'salida') ? salida.ts : now;
-    const durH = (salidaTs - entrada.ts) / 3600000;
-    if (entrada.tipoBloqueManual === 'casa') {
+
+  // Emparejar de forma robusta: buscar la siguiente salida para cada entrada
+  let i = 0;
+  while (i < sorted.length) {
+    const r = sorted[i];
+    if (r.type !== 'entrada') { i++; continue; }
+
+    // Buscar la siguiente salida
+    let salidaTs = now; // default: sesión en curso
+    if (i + 1 < sorted.length && sorted[i + 1].type === 'salida') {
+      salidaTs = sorted[i + 1].ts;
+      i += 2;
+    } else {
+      i++;
+    }
+
+    const durH = (salidaTs - r.ts) / 3600000;
+    if (r.tipoBloqueManual === 'casa') {
       casa += durH;
-    } else if (entrada.tipoBloqueManual === 'centro') {
+    } else if (r.tipoBloqueManual === 'centro') {
       centro += durH;
     } else {
-      const split = splitHours(entrada.ts, salidaTs);
+      const split = splitHours(r.ts, salidaTs);
       centro += split.centro;
       casa   += split.casa;
     }
@@ -2314,7 +2374,7 @@ function filterWeekRecs(profId, refDate) {
   const monday = getMonday(now);
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6);
-  sunday.setHours(23, 59, 59);
+  sunday.setHours(23, 59, 59, 999);
   return getRecords(profId).filter(r => {
     const d = new Date(r.ts);
     return d >= monday && d <= sunday;
