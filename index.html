@@ -1186,20 +1186,35 @@ function saveProfs(profs) {
 
 function listenProfs() {
   if (activeListeners['profs']) return;
+
+  // Timeout de seguridad: si Firestore no responde en 5s, usar localStorage
+  const timeout = setTimeout(() => {
+    console.warn('[DocenFicha] Firestore timeout — usando datos locales');
+    hideSyncBanner();
+    populateLoginSelect(); // ya tiene datos de LS del seed
+  }, 5000);
+
   activeListeners['profs'] = onSnapshot(
     doc(db, 'docenficha_profs', 'claustro'),
     snap => {
-      if (!snap.exists()) return;
-      const profs = snap.data().profs || [];
-      LS.set('profs', profs);
-      populateLoginSelect();
+      clearTimeout(timeout);
+      const profs = snap.exists() ? (snap.data().profs || []) : [];
+      if (profs.length > 0) {
+        LS.set('profs', profs);
+        populateLoginSelect();
+      }
       if (currentUser) {
         const updated = profs.find(p => p.id === currentUser.id);
         if (updated) currentUser = updated;
       }
       hideSyncBanner();
     },
-    err => { console.warn('Firestore profs listener:', err); hideSyncBanner(); }
+    err => {
+      clearTimeout(timeout);
+      console.warn('Firestore profs listener:', err);
+      hideSyncBanner();
+      populateLoginSelect(); // fallback a localStorage
+    }
   );
 }
 
@@ -1315,9 +1330,10 @@ async function init() {
     ];
     LS.set('profs', seed);
   }
+  // Mostrar select inmediatamente con datos locales
   populateLoginSelect();
   startClock();
-  // Sincronizar desde Firebase (sobrescribe local si hay datos en la nube)
+  // Sincronizar desde Firestore en segundo plano (actualiza el select cuando llegue)
   syncFromFirebase();
 }
 
@@ -1513,20 +1529,14 @@ function loginAs(prof) {
   currentUser = prof;
   isAdmin = false;
 
-  // Limpiar caché en memoria para forzar lectura fresca de Firestore
+  // 1. Mostrar app inmediatamente con lo que hay en localStorage (nunca bloquear)
+  showMainApp();
+  toast(`¡Bienvenida/o, ${prof.nombre.split(' ')[0]}! 👋`, 'success');
+
+  // 2. Limpiar memCache y lanzar Firestore en paralelo — cuando llegue, actualiza pantalla
   delete memCache['recs_' + prof.id];
-
-  // Mostrar spinner mientras carga Firestore
-  showSyncBanner('Cargando tu registro…');
-
-  // Arrancar listener PRIMERO — esperar al primer snapshot antes de mostrar la app
   listenProfs();
-  listenRecordsAndThen(prof.id, () => {
-    hideSyncBanner();
-    showMainApp();
-    toast(`¡Bienvenida/o, ${prof.nombre.split(' ')[0]}! 👋`, 'success');
-  });
-}
+  listenRecords(prof.id);
 }
 
 // Versión de listenRecords que ejecuta un callback tras el primer snapshot
