@@ -1210,10 +1210,11 @@ function getRecords(profId) {
 }
 
 function saveRecords(profId, recs) {
-  memCache['recs_' + profId] = recs;
-  LS.set('recs_' + profId, recs);
+  const recsNorm = recs.map(r => ({...r, ts: Number(r.ts)}));
+  memCache['recs_' + profId] = recsNorm;
+  LS.set('recs_' + profId, recsNorm);
   setDoc(doc(db, 'docenficha_registros', profId),
-    { recs, updatedAt: serverTimestamp() }
+    { recs: recsNorm, updatedAt: serverTimestamp() }
   ).catch(e => console.warn('Firestore saveRecords:', e));
 }
 
@@ -1228,7 +1229,8 @@ function listenRecords(profId) {
   const unsub = onSnapshot(
     doc(db, 'docenficha_registros', profId),
     snap => {
-      const recs = snap.exists() ? (snap.data().recs || []) : [];
+      const recs = (snap.exists() ? (snap.data().recs || []) : []).map(r => ({...r, ts: Number(r.ts)}));
+      console.log('[DEBUG] listener update:', profId, recs.length);
       const prev = JSON.stringify(memCache['recs_' + profId] || []);
       const next = JSON.stringify(recs);
 
@@ -1540,8 +1542,11 @@ function listenRecordsAndThen(profId, callback) {
     doc(db, 'docenficha_registros', profId),
     snap => {
       const recs = snap.exists() ? (snap.data().recs || []) : [];
-      memCache['recs_' + profId] = recs;
-      LS.set('recs_' + profId, recs);
+      console.log('[DEBUG] Firestore snapshot:', profId, 'recs:', recs.length, recs.slice(0,2));
+      // Normalizar ts a número por si vienen como string desde Firestore
+      const recsNorm = recs.map(r => ({ ...r, ts: Number(r.ts) }));
+      memCache['recs_' + profId] = recsNorm;
+      LS.set('recs_' + profId, recsNorm);
 
       if (primerSnapshot) {
         primerSnapshot = false;
@@ -1692,7 +1697,10 @@ function stopTicker() {
 }
 function renderQuickWeekly() {
   if (!currentUser) return;
+  const weekRecs = filterWeekRecs(currentUser.id);
+  console.log('[DEBUG] weekRecs:', weekRecs.length, JSON.stringify(weekRecs.slice(0,3)));
   const wbd = calcWeekBreakdown(currentUser.id);
+  console.log('[DEBUG] wbd:', JSON.stringify(wbd));
   const pctCentro = Math.min(100, (wbd.centro / H_CENTRO_SEMANA) * 100);
   const pctCasa   = Math.min(100, (wbd.casa   / H_CASA_SEMANA)   * 100);
   const extraCentro = Math.max(0, wbd.centro - H_CENTRO_SEMANA);
