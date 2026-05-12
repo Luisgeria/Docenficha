@@ -1225,7 +1225,12 @@ function getRecords(profId) {
 }
 
 function saveRecords(profId, recs) {
-  const recsNorm = recs.map(r => ({...r, ts: Number(r.ts)}));
+  // Normalizar: ts a número, eliminar campos undefined (Firestore no los acepta)
+  const recsNorm = recs.map(r => {
+    const clean = { id: r.id, date: r.date, time: r.time, ts: Number(r.ts), type: r.type };
+    if (r.tipoBloqueManual) clean.tipoBloqueManual = r.tipoBloqueManual;
+    return clean;
+  });
   memCache['recs_' + profId] = recsNorm;
   LS.set('recs_' + profId, recsNorm);
   setDoc(doc(db, 'docenficha_registros', profId),
@@ -1648,14 +1653,8 @@ function fichar() {
   const isEntrada = !lastRec || lastRec.type === 'salida';
   const type = isEntrada ? 'entrada' : 'salida';
 
-  const newRec = {
-    id: Date.now(),
-    date: todayKey,
-    time: timeStr(now),
-    ts: now.getTime(),
-    type,
-    tipoBloqueManual: isEntrada ? tipoSeleccionado : undefined,
-  };
+  const newRec = { id: Date.now(), date: todayKey, time: timeStr(now), ts: now.getTime(), type };
+  if (isEntrada) newRec.tipoBloqueManual = tipoSeleccionado;
 
   const newRecs = [...recs, newRec];
 
